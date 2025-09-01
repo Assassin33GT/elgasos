@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
+  // Intialize Firebase For Wb
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb == true) {
     await Firebase.initializeApp(
