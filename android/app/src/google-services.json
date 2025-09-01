@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "391994482977",
+    "project_id": "elgasos-f8abe",
+    "storage_bucket": "elgasos-f8abe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:391994482977:android:c8f5383780df1baf4a5e60",
+        "android_client_info": {
+          "package_name": "com.company.elgasos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCen-tjjl5v1Vv8kjR3FMY86W7M8ZAX_yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
