@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:elgasos/Screens/GameScreens/playeridentityscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WaitingRoomPage extends StatelessWidget {
   final String name;
@@ -27,6 +29,37 @@ class WaitingRoomPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            fixedSize: Size(double.maxFinite, 50),
+          ),
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => PlayerIdentityScreen(
+                  roomNumber: roomNumber,
+                  playerName: name,
+                ),
+              ),
+              (route) => false,
+            );
+          },
+          child: Center(
+            child: Text(
+              "Start Game",
+              style: GoogleFonts.poppins(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Padding(
         padding: const EdgeInsets.all(11.0),
         child: StreamBuilder(
