@@ -10,16 +10,17 @@ class WaitingRoomPage extends StatelessWidget {
     required this.roomNumber,
   });
 
-  Future<Map<String, dynamic>?> getAllData() async {
+  Stream<Map<String, dynamic>?> getAllData() {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentSnapshot snapshot = await firestore
-        .collection("Rooms")
-        .doc(roomNumber)
-        .get();
 
-    if (snapshot.exists) return snapshot.data() as Map<String, dynamic>;
-
-    return null;
+    return firestore.collection("Rooms").doc(roomNumber).snapshots().map((
+      documentSnapshot,
+    ) {
+      if (documentSnapshot.exists) {
+        return documentSnapshot.data() as Map<String, dynamic>;
+      }
+      return null;
+    });
   }
 
   @override
@@ -28,8 +29,8 @@ class WaitingRoomPage extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: Padding(
         padding: const EdgeInsets.all(11.0),
-        child: FutureBuilder(
-          future: getAllData(),
+        child: StreamBuilder(
+          stream: getAllData(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());

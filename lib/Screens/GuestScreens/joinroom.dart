@@ -6,24 +6,28 @@ class Joinroom extends StatelessWidget {
   final String name;
   const Joinroom({super.key, required this.name});
 
-  Future<List<String>> getAllRooms() async {
+  Stream<List<String>> getAllRooms() {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    QuerySnapshot snapshot = await firestore.collection("Rooms").get();
 
-    List<String> rooms = [];
-    snapshot.docs.forEach((doc) {
-      rooms.add(doc.id);
+    return firestore.collection("Rooms").snapshots().map((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        List<String> rooms = [];
+        querySnapshot.docs.forEach((doc) {
+          rooms.add(doc.id);
+        });
+
+        return rooms;
+      }
+      return [];
     });
-
-    return rooms;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: FutureBuilder(
-        future: getAllRooms(),
+      body: StreamBuilder(
+        stream: getAllRooms(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
