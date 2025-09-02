@@ -6,10 +6,12 @@ import 'package:google_fonts/google_fonts.dart';
 class WaitingRoomPage extends StatelessWidget {
   final String name;
   final String roomNumber;
+  final int noOfPlayers;
   const WaitingRoomPage({
     super.key,
     required this.name,
     required this.roomNumber,
+    required this.noOfPlayers,
   });
 
   Stream<Map<String, dynamic>?> getAllData() {
@@ -79,18 +81,13 @@ class WaitingRoomPage extends StatelessWidget {
                     "Room Number: ${data["RoomNumber"]}",
                     style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                  Text(
-                    "Player 1: ${data["Player 1"]}",
-                    style: TextStyle(color: Colors.white, fontSize: 30),
-                  ),
-                  Text(
-                    "Player 2: ${data["Player 2"]}",
-                    style: TextStyle(color: Colors.white, fontSize: 30),
-                  ),
-                  Text(
-                    "Player 3: ${data["Player 3"]}",
-                    style: TextStyle(color: Colors.white, fontSize: 30),
-                  ),
+                  for (int i = 1; i <= noOfPlayers; i++)
+                    Text(
+                      data["Player $i"] == null
+                          ? "Player $i: waiting"
+                          : "Player $i: ${data["Player $i"]}",
+                      style: TextStyle(color: Colors.white, fontSize: 30),
+                    ),
                 ],
               ),
             );

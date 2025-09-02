@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:elgasos/Widgets/getplayersname.dart';
+import 'package:elgasos/Screens/GameScreens/startgame.dart';
+import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -25,15 +28,43 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   void initState() {
     super.initState();
     giveIdentity();
+    createChat();
+    // Timer to go to next page
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => Startgame(
+            playerName: widget.playerName,
+            roomNumber: widget.roomNumber,
+          ),
+        ),
+        (route) => false,
+      );
+    });
   }
 
   void giveIdentity() async {
-    final names = await getPlayersName(widget.roomNumber);
-    await firestore.collection("Rooms").doc(widget.roomNumber).set({
+    final names = await FirebaseData().getPlayersName(widget.roomNumber);
+    await firestore.collection("Rooms").doc(widget.roomNumber).update({
       names!['Player 1']: randomFunction(),
       names["Player 2"]: randomFunction(),
       names["Player 3"]: randomFunction(),
     });
+  }
+
+  void createChat() async {
+    Map<String, dynamic>? names = await FirebaseData().getPlayersName(
+      widget.roomNumber,
+    );
+    await firestore
+        .collection("Rooms")
+        .doc(widget.roomNumber)
+        .collection("Chat")
+        .doc("1")
+        .set({
+          "Msg": "${names!["Player 1"]} ask ${names["Player 2"]}",
+          "Sender": "Bot",
+        });
   }
 
   Stream<Map<String, dynamic>?> getIdentity() {
@@ -57,13 +88,13 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     return Scaffold(
       body: StreamBuilder(
         stream: getIdentity(),
-        builder: (context, snapsot) {
-          if (snapsot.connectionState == ConnectionState.waiting) {
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapsot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text("An error happend!"));
           }
-          final data = snapsot.data;
+          final data = snapshot.data;
 
           return Center(
             child: Text(
