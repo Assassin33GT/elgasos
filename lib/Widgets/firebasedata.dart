@@ -72,6 +72,7 @@ class FirebaseData {
         await _firestore.collection("Rooms").doc(roomNumber).update({
           "Player $i": name,
         });
+        break;
       }
     }
   }

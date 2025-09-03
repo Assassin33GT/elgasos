@@ -20,6 +20,7 @@ class _JoinedroomState extends State<Joinedroom> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       appBar: AppBar(),
       body: StreamBuilder(
         stream: FirebaseData().getRoomDataStream(widget.roomNumber),
