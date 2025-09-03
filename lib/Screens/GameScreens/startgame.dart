@@ -24,53 +24,9 @@ class _StartgameState extends State<Startgame> {
   @override
   void initState() {
     super.initState();
-    noOfMessages = Future.value(getChatIds());
-  }
-
-  Future<int?> getChatIds() async {
-    QuerySnapshot snapshot = await firestore
-        .collection("Rooms")
-        .doc(widget.roomNumber)
-        .collection("Chat")
-        .get();
-
-    if (snapshot.docs.isNotEmpty) {
-      return snapshot.docs.length;
-    }
-    return null;
-  }
-
-  void sendMessage(int? no) async {
-    if (message.text.isEmpty) return;
-    no = no! + 1;
-    await firestore
-        .collection("Rooms")
-        .doc(widget.roomNumber)
-        .collection("Chat")
-        .doc(no.toString())
-        .set({"Msg": message.text, "Sender": widget.playerName});
-
-    noOfMessages = Future.value(getChatIds());
-    message.clear();
-  }
-
-  Stream<Map<String, dynamic>>? getChatData() {
-    firestore
-        .collection("Rooms")
-        .doc(widget.roomNumber)
-        .collection("Chat")
-        .snapshots()
-        .map((snapsot) {
-          if (snapsot.docs.isNotEmpty) {
-            List<String> data = [];
-
-            snapsot.docs.forEach((doc) {
-              data.add(doc.id);
-            });
-            return data;
-          }
-        });
-    return null;
+    noOfMessages = Future.value(
+      FirebaseData().getChatIds(roomNumber: widget.roomNumber),
+    );
   }
 
   @override
@@ -85,10 +41,24 @@ class _StartgameState extends State<Startgame> {
           decoration: InputDecoration(
             suffixIcon: IconButton(
               onPressed: () async {
-                sendMessage(await noOfMessages!);
+                if (message.text.isNotEmpty) {
+                  // To increase noOfMessages by 1
+                  int? no = await Future.value(noOfMessages);
+                  no = no! + 1;
+                  noOfMessages = Future.value(no);
+                  // To save Message in the firestore
+                  FirebaseData().sendMessage(
+                    noOfMessages: await noOfMessages!,
+                    message: message.text,
+                    playerName: widget.playerName,
+                    roomNumber: widget.roomNumber,
+                  );
+                  message.clear();
+                }
               },
               icon: Icon(Icons.send_rounded),
             ),
+            enabled: true,
             hintText: "Enter a message...",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(40)),
             filled: true,

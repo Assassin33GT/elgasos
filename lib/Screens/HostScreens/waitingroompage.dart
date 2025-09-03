@@ -18,6 +18,20 @@ class WaitingRoomPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void goAnother(bool fullNot) {
+      if (fullNot) {
+        FirebaseData().giveQuestions(roomNumber);
+
+        goAnotherPage(
+          context: context,
+          page: PlayerIdentityScreen(roomNumber: roomNumber, playerName: name),
+          isRoute: false,
+        );
+      } else {
+        showSnackBar(context, "Wait for other players");
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       floatingActionButton: Padding(
@@ -33,18 +47,7 @@ class WaitingRoomPage extends StatelessWidget {
               noOfPlayers,
             );
 
-            if (fullNot) {
-              goAnotherPage(
-                context: context,
-                page: PlayerIdentityScreen(
-                  roomNumber: roomNumber,
-                  playerName: name,
-                ),
-                isRoute: false,
-              );
-            } else {
-              showSnackBar(context, "Wait for other players");
-            }
+            goAnother(fullNot);
 
             fullNot = false;
           },

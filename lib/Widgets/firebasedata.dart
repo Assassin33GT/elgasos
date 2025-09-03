@@ -30,6 +30,18 @@ class FirebaseData {
     });
   }
 
+  // Return all players names
+  Future<List<String>>? getPlayersNames(String roomNumber) async {
+    Map<String, dynamic>? roomData = await getRoomData(roomNumber);
+    List<String> playersNames = [];
+
+    for (int i = 1; i <= roomData!["NoOfPlayers"]; i++) {
+      playersNames.add(roomData['Player $i']);
+    }
+
+    return playersNames;
+  }
+
   // Used in Create Room to create a map for the saved data
   Map<String, dynamic> createRoomData({
     required Map<String, dynamic> roomData,
@@ -145,7 +157,7 @@ class FirebaseData {
     required int noOfPlayers,
     required int noOfImposters,
   }) async {
-    final names = await FirebaseData().getRoomData(roomNumber);
+    final names = await getRoomData(roomNumber);
     final List<bool> identityList = createIdentity(noOfPlayers, noOfImposters);
 
     Map<String, dynamic> identityData = {};
@@ -159,14 +171,16 @@ class FirebaseData {
 
   // To create a collection for Messages inside the Room collection
   void createChat(String roomNumber) async {
-    Map<String, dynamic>? names = await FirebaseData().getRoomData(roomNumber);
+    // Map<String, dynamic>? names = await getRoomData(roomNumber);
+    Map<String, dynamic>? questions = await getAllQuestions(roomNumber);
+
     await _firestore
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
         .doc("1")
         .set({
-          "Msg": "${names!["Player 1"]} ask ${names["Player 2"]}",
+          "Msg": "${questions!['Ask']} ask ${questions['Answer']}",
           "Sender": "Bot",
         });
   }
@@ -178,5 +192,87 @@ class FirebaseData {
         .doc(roomNumber)
         .collection("Chat")
         .snapshots();
+  }
+
+  // When a user send a message this function called to save the message inside firestore
+  void sendMessage({
+    required String message,
+    required String roomNumber,
+    required String playerName,
+    required int? noOfMessages,
+  }) async {
+    if (message.isEmpty) return;
+
+    await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .doc(noOfMessages.toString())
+        .set({"Msg": message, "Sender": playerName});
+  }
+
+  // To get all the chat ids
+  Future<int?> getChatIds({required String roomNumber}) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.length;
+    }
+    return null;
+  }
+
+  // Initializa Who ask Who
+  void giveQuestions(String roomNumber) async {
+    // Map<String, dynamic>? roomData = await getRoomData(roomNumber);
+    // final int noOfPlayers = roomData!['NoOfPlayers'];
+    List<String>? playersNames = await getPlayersNames(roomNumber);
+    // Map<String, String> questions = {};
+
+    int id = 0;
+    for (int i = 1; i < playersNames!.length; i++) {
+      int k = 0;
+      for (int j = 0; j < playersNames.length; j++) {
+        id++;
+        await _firestore
+            .collection("Rooms")
+            .doc(roomNumber)
+            .collection("Questions")
+            .doc(id.toString())
+            .set({
+              'Ask': playersNames[j],
+              'Answer': j + i <= playersNames.length - 1
+                  ? playersNames[j + i]
+                  : playersNames[k],
+            });
+        if (j + i > playersNames.length - 1) {
+          k++;
+        }
+      }
+    }
+  }
+
+  // Get All Questions of a room
+  Future<Map<String, dynamic>?> getAllQuestions(String roomNumber) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Questions")
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    Map<String, dynamic> questions = {};
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      questions.addAll({
+        "Ask": snapshot.docs[i]['Ask'],
+        "Answer": snapshot.docs[i]['Answer'],
+      });
+    }
+
+    return questions;
   }
 }
