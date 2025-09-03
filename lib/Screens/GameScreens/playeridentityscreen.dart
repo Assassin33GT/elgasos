@@ -5,7 +5,6 @@ import 'package:elgasos/Screens/GameScreens/startgame.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 import 'package:google_fonts/google_fonts.dart';
 
@@ -28,9 +27,13 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   @override
   void initState() {
     super.initState();
-    giveIdentity();
-    createChat();
-    // Timer to go to next page
+    startGiveIdentity();
+    FirebaseData().createChat(widget.roomNumber);
+    startTimer();
+  }
+
+  // Timer to go to next page
+  void startTimer() {
     Timer.periodic(Duration(seconds: 5), (timer) {
       goAnotherPage(
         context: context,
@@ -43,51 +46,21 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     });
   }
 
-  void giveIdentity() async {
-    final names = await FirebaseData().getRoomData(widget.roomNumber);
-    await firestore.collection("Rooms").doc(widget.roomNumber).update({
-      names!['Player 1']: randomFunction(),
-      names["Player 2"]: randomFunction(),
-      names["Player 3"]: randomFunction(),
-    });
-  }
-
-  void createChat() async {
-    Map<String, dynamic>? names = await FirebaseData().getRoomData(
-      widget.roomNumber,
+  // Call the Functions that give players the key or imposter
+  void startGiveIdentity() async {
+    final getRoomData = await FirebaseData().getRoomData(widget.roomNumber);
+    FirebaseData().giveIdentity(
+      roomNumber: widget.roomNumber,
+      noOfPlayers: getRoomData!['NoOfPlayers'],
+      noOfImposters: getRoomData['NoOfImposters'],
     );
-    await firestore
-        .collection("Rooms")
-        .doc(widget.roomNumber)
-        .collection("Chat")
-        .doc("1")
-        .set({
-          "Msg": "${names!["Player 1"]} ask ${names["Player 2"]}",
-          "Sender": "Bot",
-        });
-  }
-
-  Stream<Map<String, dynamic>?> getIdentity() {
-    return firestore.collection("Rooms").doc(widget.roomNumber).snapshots().map(
-      (snapshot) {
-        if (snapshot.exists) {
-          return snapshot.data() as Map<String, dynamic>;
-        }
-        return null;
-      },
-    );
-  }
-
-  bool randomFunction() {
-    final random = Random();
-    return random.nextBool();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder(
-        stream: getIdentity(),
+        stream: FirebaseData().getRoomDataStream(widget.roomNumber),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

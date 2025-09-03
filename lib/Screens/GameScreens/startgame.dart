@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -100,11 +101,7 @@ class _StartgameState extends State<Startgame> {
         ),
       ),
       body: StreamBuilder(
-        stream: firestore
-            .collection("Rooms")
-            .doc(widget.roomNumber)
-            .collection("Chat")
-            .snapshots(),
+        stream: FirebaseData().getAllMessagesStream(widget.roomNumber),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());

@@ -17,6 +17,20 @@ class _RoomPageState extends State<RoomPage> {
   int noOfPlayers = 3;
   List<int> optionsOfNumberOfPlayer = [3, 4, 5, 6, 7, 8];
   TextEditingController roomNumber = TextEditingController();
+  int noOfImposters = 1;
+  List<int> optionsOfNumberOfImposters = [1, 2, 3];
+
+  void goAnother() {
+    goAnotherPage(
+      context: context,
+      page: WaitingRoomPage(
+        name: widget.name,
+        roomNumber: roomNumber.text,
+        noOfPlayers: noOfPlayers,
+      ),
+      isRoute: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +119,65 @@ class _RoomPageState extends State<RoomPage> {
                 ),
               ),
               const SizedBox(height: 20),
+              Text(
+                "Number Of Imposters",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.orangeAccent,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ...optionsOfNumberOfImposters.map((no) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: InkWell(
+                          onTap: () {
+                            if (noOfPlayers <= 4 && no == 1) {
+                              noOfImposters = no;
+                            } else if (noOfPlayers > 4) {
+                              noOfImposters = no;
+                            }
+                            setState(() {});
+                          },
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: noOfPlayers <= 4
+                                  ? no == 1
+                                        ? noOfImposters == no
+                                              ? Colors.deepOrangeAccent
+                                              : Colors.orange
+                                        : Colors.grey
+                                  : noOfImposters == no
+                                  ? Colors.deepOrangeAccent
+                                  : Colors.orange,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Colors.deepOrange,
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(child: Text(no.toString())),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: Colors.orange.shade500, width: 2),
@@ -115,16 +188,9 @@ class _RoomPageState extends State<RoomPage> {
                       noOfPlayers,
                       roomNumber.text,
                       widget.name,
+                      noOfImposters,
                     );
-                    goAnotherPage(
-                      context: context,
-                      page: WaitingRoomPage(
-                        name: widget.name,
-                        roomNumber: roomNumber.text,
-                        noOfPlayers: noOfPlayers,
-                      ),
-                      isRoute: true,
-                    );
+                    goAnother();
                   } else {
                     showSnackBar(context, "Enter the room number!");
                     setState(() {});
