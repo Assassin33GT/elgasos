@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elgasos/Screens/GameScreens/startgame.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -31,20 +32,19 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     createChat();
     // Timer to go to next page
     Timer.periodic(Duration(seconds: 5), (timer) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => Startgame(
-            playerName: widget.playerName,
-            roomNumber: widget.roomNumber,
-          ),
+      goAnotherPage(
+        context: context,
+        page: Startgame(
+          playerName: widget.playerName,
+          roomNumber: widget.roomNumber,
         ),
-        (route) => false,
+        isRoute: false,
       );
     });
   }
 
   void giveIdentity() async {
-    final names = await FirebaseData().getPlayersName(widget.roomNumber);
+    final names = await FirebaseData().getRoomData(widget.roomNumber);
     await firestore.collection("Rooms").doc(widget.roomNumber).update({
       names!['Player 1']: randomFunction(),
       names["Player 2"]: randomFunction(),
@@ -53,7 +53,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   }
 
   void createChat() async {
-    Map<String, dynamic>? names = await FirebaseData().getPlayersName(
+    Map<String, dynamic>? names = await FirebaseData().getRoomData(
       widget.roomNumber,
     );
     await firestore

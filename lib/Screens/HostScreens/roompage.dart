@@ -1,5 +1,6 @@
 import 'package:elgasos/Screens/HostScreens/waitingroompage.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:elgasos/Widgets/showsnackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,10 +16,10 @@ class RoomPage extends StatefulWidget {
 class _RoomPageState extends State<RoomPage> {
   int noOfPlayers = 3;
   List<int> optionsOfNumberOfPlayer = [3, 4, 5, 6, 7, 8];
+  TextEditingController roomNumber = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController roomNumber = TextEditingController();
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       appBar: AppBar(),
@@ -115,14 +116,14 @@ class _RoomPageState extends State<RoomPage> {
                       roomNumber.text,
                       widget.name,
                     );
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => WaitingRoomPage(
-                          name: widget.name,
-                          roomNumber: roomNumber.text,
-                          noOfPlayers: noOfPlayers,
-                        ),
+                    goAnotherPage(
+                      context: context,
+                      page: WaitingRoomPage(
+                        name: widget.name,
+                        roomNumber: roomNumber.text,
+                        noOfPlayers: noOfPlayers,
                       ),
+                      isRoute: true,
                     );
                   } else {
                     showSnackBar(context, "Enter the room number!");

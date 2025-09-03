@@ -1,5 +1,6 @@
 import 'package:elgasos/Screens/GuestScreens/joinroom.dart';
 import 'package:elgasos/Screens/HostScreens/roompage.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -62,10 +63,10 @@ class Homepage extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => RoomPage(name: name),
-                      ),
+                    goAnotherPage(
+                      context: context,
+                      page: RoomPage(name: name),
+                      isRoute: true,
                     );
                   },
                   child: Container(
@@ -94,10 +95,10 @@ class Homepage extends StatelessWidget {
                 const SizedBox(height: 20),
                 InkWell(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => Joinroom(name: name),
-                      ),
+                    goAnotherPage(
+                      context: context,
+                      page: Joinroom(name: name),
+                      isRoute: true,
                     );
                   },
                   child: Container(

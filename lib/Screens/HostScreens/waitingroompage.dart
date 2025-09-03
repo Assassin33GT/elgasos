@@ -1,5 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elgasos/Screens/GameScreens/playeridentityscreen.dart';
+import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
+import 'package:elgasos/Widgets/showsnackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,19 +16,6 @@ class WaitingRoomPage extends StatelessWidget {
     required this.noOfPlayers,
   });
 
-  Stream<Map<String, dynamic>?> getAllData() {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    return firestore.collection("Rooms").doc(roomNumber).snapshots().map((
-      documentSnapshot,
-    ) {
-      if (documentSnapshot.exists) {
-        return documentSnapshot.data() as Map<String, dynamic>;
-      }
-      return null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,16 +27,26 @@ class WaitingRoomPage extends StatelessWidget {
             backgroundColor: Colors.orange,
             fixedSize: Size(double.maxFinite, 50),
           ),
-          onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => PlayerIdentityScreen(
+          onPressed: () async {
+            bool fullNot = await FirebaseData().roomFull(
+              roomNumber,
+              noOfPlayers,
+            );
+
+            if (fullNot) {
+              goAnotherPage(
+                context: context,
+                page: PlayerIdentityScreen(
                   roomNumber: roomNumber,
                   playerName: name,
                 ),
-              ),
-              (route) => false,
-            );
+                isRoute: false,
+              );
+            } else {
+              showSnackBar(context, "Wait for other players");
+            }
+
+            fullNot = false;
           },
           child: Center(
             child: Text(
@@ -65,7 +64,7 @@ class WaitingRoomPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(11.0),
         child: StreamBuilder(
-          stream: getAllData(),
+          stream: FirebaseData().getRoomDataStream(roomNumber),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -84,7 +83,7 @@ class WaitingRoomPage extends StatelessWidget {
                   for (int i = 1; i <= noOfPlayers; i++)
                     Text(
                       data["Player $i"] == null
-                          ? "Player $i: waiting"
+                          ? "Player $i: waiting..."
                           : "Player $i: ${data["Player $i"]}",
                       style: TextStyle(color: Colors.white, fontSize: 30),
                     ),

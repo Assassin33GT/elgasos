@@ -4,6 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {".dart_tool/dartpad/web_plugin_registrant.dart": "7ed35bc85b7658d113371ffc24d07117",
+".dart_tool/extension_discovery/vs_code.json": "afcafc3d0feb52770dec8502c9637406",
 ".dart_tool/package_config.json": "acfe2526a7b2d10e30664aeb6e8dccc3",
 ".dart_tool/package_graph.json": "e9ab8758f1fe34f90e76fc61e043d481",
 ".dart_tool/version": "e820d6dc09a8832d0fea23496338576d",
@@ -59,7 +60,7 @@ const RESOURCES = {".dart_tool/dartpad/web_plugin_registrant.dart": "7ed35bc85b7
 "canvaskit/skwasm_heavy.wasm": "8034ad26ba2485dab2fd49bdd786837b",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "flutter.js": "888483df48293866f9f41d3d9274a779",
-"flutter_bootstrap.js": "7a914eec689ee232b1fbac307fc6f007",
+"flutter_bootstrap.js": "7c4cf20f367e1051bb99a129460c8ab8",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
@@ -149,7 +150,7 @@ const RESOURCES = {".dart_tool/dartpad/web_plugin_registrant.dart": "7ed35bc85b7
 "macos/Runner.xcworkspace/contents.xcworkspacedata": "ac9a90958f80f9cc1d0d5301144fb629",
 "macos/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": "7e8ed88ea03cf8357fe1c73ae979f345",
 "macos/RunnerTests/RunnerTests.swift": "8059f5d27a19c556eeafb49b3f9b7bdd",
-"main.dart.js": "1c1c1db21e4fcd359e58398e8638ba18",
+"main.dart.js": "3864c3e0a9bca72c8080493d9f55aec3",
 "manifest.json": "3be9e7c03aa1728be10fab39809ab350",
 "pubspec.lock": "a939f24f340224d4082a2e8996e72d1b",
 "pubspec.yaml": "96349508b4a09c214a69837c71531e36",

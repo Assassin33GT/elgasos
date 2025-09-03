@@ -1,4 +1,5 @@
 import 'package:elgasos/Screens/homepage.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -46,10 +47,10 @@ class Namepage extends StatelessWidget {
                   side: BorderSide(color: Colors.orange.shade500, width: 2),
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Homepage(name: name.text),
-                    ),
+                  goAnotherPage(
+                    context: context,
+                    page: Homepage(name: name.text),
+                    isRoute: false,
                   );
                 },
                 child: Icon(

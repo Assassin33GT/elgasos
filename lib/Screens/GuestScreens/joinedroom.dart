@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:flutter/material.dart';
 
 class Joinedroom extends StatefulWidget {
@@ -14,45 +14,7 @@ class _JoinedroomState extends State<Joinedroom> {
   @override
   void initState() {
     super.initState();
-    updateRoomData();
-  }
-
-  Stream<Map<String, dynamic>?> getAllData() {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    return firestore.collection("Rooms").doc(widget.roomNumber).snapshots().map(
-      (documentSnapshot) {
-        if (documentSnapshot.exists) {
-          return documentSnapshot.data() as Map<String, dynamic>;
-        }
-        return null;
-      },
-    );
-  }
-
-  void updateRoomData() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    DocumentSnapshot snapshot = await firestore
-        .collection("Rooms")
-        .doc(widget.roomNumber)
-        .get();
-    final data = snapshot.data()! as Map<String, dynamic>;
-
-    if (data['Player 2'] == null &&
-        data['Player 1'] != widget.name &&
-        data['Player 2'] != widget.name &&
-        data['Player 3'] != widget.name) {
-      await firestore.collection("Rooms").doc(widget.roomNumber).update({
-        "Player 2": widget.name,
-      });
-    } else if (data['Player 3'] == null &&
-        data['Player 1'] != widget.name &&
-        data['Player 2'] != widget.name &&
-        data['Player 3'] != widget.name) {
-      await firestore.collection("Rooms").doc(widget.roomNumber).update({
-        "Player 3": widget.name,
-      });
-    }
+    FirebaseData().updateRoomData(widget.roomNumber, widget.name);
   }
 
   @override
@@ -60,7 +22,7 @@ class _JoinedroomState extends State<Joinedroom> {
     return Scaffold(
       appBar: AppBar(),
       body: StreamBuilder(
-        stream: getAllData(),
+        stream: FirebaseData().getRoomDataStream(widget.roomNumber),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -72,10 +34,17 @@ class _JoinedroomState extends State<Joinedroom> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Room Number: ${data["RoomNumber"]}"),
-                Text("Player 1: ${data["Player 1"]}"),
-                Text("Player 2: ${data["Player 2"]}"),
-                Text("Player 3: ${data["Player 3"]}"),
+                Text(
+                  "Room Number: ${data["RoomNumber"]}",
+                  style: TextStyle(color: Colors.white, fontSize: 30),
+                ),
+                for (int i = 1; i <= data["NoOfPlayers"]; i++)
+                  Text(
+                    data["Player $i"] == null
+                        ? "Player $i: waiting..."
+                        : "Player $i: ${data["Player $i"]}",
+                    style: TextStyle(color: Colors.white, fontSize: 30),
+                  ),
               ],
             ),
           );
