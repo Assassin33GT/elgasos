@@ -82,6 +82,7 @@ class _StartgameState extends State<Startgame> {
                       final msg = messages[index];
                       final isCurrentPlayer =
                           msg['Sender'] == widget.playerName;
+                      no = messages.length;
 
                       // To know asker and who should answer
                       for (final msg in messages.reversed) {
@@ -141,9 +142,7 @@ class _StartgameState extends State<Startgame> {
                         }
                       }
                       print(no);
-                      print(
-                        _currentAnswerer == widget.playerName && no! % 2 == 0,
-                      );
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Align(
@@ -208,14 +207,14 @@ class _StartgameState extends State<Startgame> {
                         onPressed: () async {
                           if (message.text.isNotEmpty) {
                             // To increase noOfMessages by 1
-                            no = await Future.value(noOfMessages);
-                            setState(() {
-                              no = no! + 1;
-                            });
-                            noOfMessages = Future.value(no);
+                            // no = await Future.value(noOfMessages);
+                            // setState(() {
+                            //   no = no! + 1;
+                            // });
+                            // noOfMessages = Future.value(no);
                             // To save Message in the firestore
                             FirebaseData().sendMessage(
-                              noOfMessages: await noOfMessages!,
+                              noOfMessages: no! + 1,
                               message: message.text,
                               playerName: widget.playerName,
                               roomNumber: widget.roomNumber,
