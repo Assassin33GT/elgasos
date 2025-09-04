@@ -35,7 +35,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     final names = await FirebaseData().getPlayersNames(widget.roomNumber);
     if (widget.playerName == names![0]) {
       startGiveIdentity();
-      FirebaseData().createChat(widget.roomNumber);
+      FirebaseData().createChat(widget.roomNumber, "1");
     }
   }
 

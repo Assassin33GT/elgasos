@@ -177,20 +177,49 @@ class FirebaseData {
   }
 
   // To create a collection for Messages inside the Room collection
-  void createChat(String roomNumber) async {
+  void createChat(String roomNumber, String index) async {
+    String asker = "";
+    String answerer = "";
+
     List<Map<String, dynamic>>? questions = await getAllQuestions(
       roomNumber: roomNumber,
     );
+    final List<Map<String, dynamic>>? allMessages = await getAllMessages(
+      roomNumber: roomNumber,
+    );
+
+    int flag = 0;
+    if (index == "1") {
+      asker = questions![0]['Asker'];
+      answerer = questions[0]['Answerer'];
+    } else {
+      allMessages!.reversed.map((doc) {
+        if (doc['Sender'] == "Bot" && flag == 0) {
+          asker = doc['Asker'];
+          answerer = doc['Answerer'];
+          flag = 1;
+        }
+      });
+
+      for (int i = 0; i < questions!.length; i++) {
+        if (questions[i]['Asker'] == asker &&
+            questions[i]['Answerer'] == answerer) {
+          asker = questions[i + 1]['Asker'];
+          answerer = questions[i + 1]['Answerer'];
+          break;
+        }
+      }
+    }
 
     await _firestore
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
-        .doc("1")
+        .doc(index)
         .set({
-          "Msg": "${questions![0]['Asker']} ask ${questions[0]['Answerer']}",
-          "Asker": "${questions[0]['Asker']}",
-          "Answerer": "${questions[0]['Answerer']}",
+          "Msg": "$asker ask $answerer",
+          "Asker": asker,
+          "Answerer": answerer,
           "Sender": "Bot",
           "Asked": false,
           "Answered": false,
@@ -224,6 +253,19 @@ class FirebaseData {
         .doc(roomNumber)
         .collection("Chat")
         .snapshots();
+  }
+
+  // To get the last bot message in a room
+  Future<Map<String, dynamic>?> getLastBotMessage(String roomNumber) async {
+    final allMessages = await getAllMessages(roomNumber: roomNumber);
+
+    allMessages!.reversed.map((doc) {
+      if (doc['Sender'] == "Bot") {
+        return doc;
+      }
+    });
+
+    return null;
   }
 
   // When a user send a message this function called to save the message inside firestore

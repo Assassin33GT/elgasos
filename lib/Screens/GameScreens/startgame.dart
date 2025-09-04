@@ -31,6 +31,20 @@ class _StartgameState extends State<Startgame> {
 
   @override
   Widget build(BuildContext context) {
+    void reValue(int noOfMessages) async {
+      final Map<String, dynamic>? lastBotMessage = await FirebaseData()
+          .getLastBotMessage(widget.roomNumber);
+      if (lastBotMessage!['Asked'] == true &&
+          lastBotMessage['Answered'] == true) {
+        setState(() {
+          FirebaseData().createChat(widget.roomNumber, noOfMessages.toString());
+          _currentAsker = null;
+          _currentAnswerer = null;
+          canSend = false;
+        });
+      }
+    }
+
     void updateBool({
       bool? asked,
       bool? answered,
@@ -79,6 +93,7 @@ class _StartgameState extends State<Startgame> {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     setState(() {
                       canSend = newCanSend;
+                      reValue(no!);
                     });
                   });
                 }
