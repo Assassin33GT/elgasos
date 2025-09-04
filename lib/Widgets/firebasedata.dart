@@ -188,10 +188,12 @@ class FirebaseData {
         .collection("Chat")
         .doc("1")
         .set({
-          "Msg": "${questions![0]['Ask']} ask ${questions[0]['Answer']}",
-          "Ask": "${questions[0]['Ask']}",
-          "Answer": "${questions[0]['Answer']}",
+          "Msg": "${questions![0]['Asker']} ask ${questions[0]['Answerer']}",
+          "Asker": "${questions[0]['Asker']}",
+          "Answerer": "${questions[0]['Answerer']}",
           "Sender": "Bot",
+          "Asked": false,
+          "Answered": false,
         });
   }
 
@@ -241,8 +243,8 @@ class FirebaseData {
         .set({
           "Msg": message,
           "Sender": playerName,
-          "Ask": null,
-          "Answer": null,
+          "Asker": null,
+          "Answerer": null,
         });
   }
 
@@ -275,8 +277,8 @@ class FirebaseData {
             .collection("Questions")
             .doc(id.toString())
             .set({
-              'Ask': playersNames[j],
-              'Answer': j + i <= playersNames.length - 1
+              'Asker': playersNames[j],
+              'Answerer': j + i <= playersNames.length - 1
                   ? playersNames[j + i]
                   : playersNames[k],
             });
@@ -302,8 +304,8 @@ class FirebaseData {
     List<Map<String, dynamic>> questions = [];
     for (int i = 0; i < snapshot.docs.length; i++) {
       questions.add({
-        "Ask": snapshot.docs[i]['Ask'],
-        "Answer": snapshot.docs[i]['Answer'],
+        "Asker": snapshot.docs[i]['Asker'],
+        "Answerer": snapshot.docs[i]['Answerer'],
       });
     }
 

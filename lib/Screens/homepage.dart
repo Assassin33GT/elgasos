@@ -62,7 +62,7 @@ class Homepage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "ElGasos",
+                  "ElGasos/",
                   style: GoogleFonts.vampiroOne(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,

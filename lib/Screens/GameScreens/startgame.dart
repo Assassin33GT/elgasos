@@ -38,6 +38,22 @@ class _StartgameState extends State<Startgame> {
 
   @override
   Widget build(BuildContext context) {
+    void updateBool({
+      bool? asked,
+      bool? answered,
+      required String index,
+    }) async {
+      await firestore
+          .collection("Rooms")
+          .doc(widget.roomNumber)
+          .collection("Chat")
+          .doc(index)
+          .update({
+            if (asked != null) "Asked": asked,
+            if (answered != null) "Answered": answered,
+          });
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: Column(
@@ -66,17 +82,56 @@ class _StartgameState extends State<Startgame> {
                       final msg = messages[index];
                       final isCurrentPlayer =
                           msg['Sender'] == widget.playerName;
+
                       // To know asker and who should answer
                       for (final msg in messages.reversed) {
-                        if (msg['Ask'] != null && msg['Answer'] != null) {
+                        if (msg['Asker'] != null && msg['Answerer'] != null) {
                           // 3. UPDATE THE STATE (and trigger a rebuild)
-                          if (_currentAsker != msg['Ask'] ||
-                              _currentAnswerer != msg['Answer']) {
-                            // Schedule the state update for the next frame to avoid doing it during build.
+                          if (messages.length % 2 == 0 &&
+                              msg['Sender'] == "Bot") {
+                            updateBool(
+                              index: (index + 1).toString(),
+                              asked: true,
+                            );
+                          } else if (messages.length % 2 == 1 &&
+                              msg['Asked'] == true &&
+                              msg['Sender'] == "Bot" &&
+                              msg['Answered'] == false) {
+                            updateBool(
+                              index: (index + 1).toString(),
+                              answered: true,
+                            );
+                          }
+
+                          // if (_currentAsker != msg['Asker'] ||
+                          //     _currentAnswerer != msg['Answerer']) {
+                          //   // Schedule the state update for the next frame to avoid doing it during build.
+                          //   WidgetsBinding.instance.addPostFrameCallback((_) {
+                          //     setState(() {
+                          //       _currentAsker = msg['Asker'];
+                          //       _currentAnswerer = msg['Answerer'];
+                          //     });
+                          //   });
+                          // }
+                          if (_currentAsker != msg['Asker'] &&
+                              msg['Asked'] == false &&
+                              msg['Sender'] == "Bot" &&
+                              messages.length % 2 == 1) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
-                                _currentAsker = msg['Ask'];
-                                _currentAnswerer = msg['Answer'];
+                                _currentAsker = msg['Asker'];
+                                print(1);
+                              });
+                            });
+                          } else if (_currentAnswerer != msg['Answerer'] &&
+                              msg['Asked'] == true &&
+                              msg['Answered'] == false &&
+                              msg['Sender'] == "Bot" &&
+                              messages.length % 2 == 0) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              setState(() {
+                                _currentAnswerer = msg['Answerer'];
+                                print(2);
                               });
                             });
                           }
@@ -161,18 +216,6 @@ class _StartgameState extends State<Startgame> {
                               roomNumber: widget.roomNumber,
                             );
                             message.clear();
-                            final allMessages = await FirebaseData()
-                                .getAllMessages(roomNumber: widget.roomNumber);
-                            for (final msg in allMessages!.reversed) {
-                              if (msg['Ask'] != null && msg['Answer'] != null) {
-                                setState(() {
-                                  _currentAsker = msg['Ask'];
-                                  _currentAnswerer = msg['Answer'];
-                                });
-
-                                break; // Found the most recent one, break the loop.
-                              }
-                            }
                           }
                         },
                         icon: Icon(Icons.send_rounded),
