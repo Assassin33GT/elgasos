@@ -171,8 +171,9 @@ class FirebaseData {
 
   // To create a collection for Messages inside the Room collection
   void createChat(String roomNumber) async {
-    // Map<String, dynamic>? names = await getRoomData(roomNumber);
-    Map<String, dynamic>? questions = await getAllQuestions(roomNumber);
+    List<Map<String, dynamic>>? questions = await getAllQuestions(
+      roomNumber: roomNumber,
+    );
 
     await _firestore
         .collection("Rooms")
@@ -180,7 +181,9 @@ class FirebaseData {
         .collection("Chat")
         .doc("1")
         .set({
-          "Msg": "${questions!['Ask']} ask ${questions['Answer']}",
+          "Msg": "${questions![0]['Ask']} ask ${questions[0]['Answer']}",
+          "Ask": "${questions[0]['Ask']}",
+          "Answer": "${questions[0]['Answer']}",
           "Sender": "Bot",
         });
   }
@@ -208,7 +211,12 @@ class FirebaseData {
         .doc(roomNumber)
         .collection("Chat")
         .doc(noOfMessages.toString())
-        .set({"Msg": message, "Sender": playerName});
+        .set({
+          "Msg": message,
+          "Sender": playerName,
+          "Ask": null,
+          "Answer": null,
+        });
   }
 
   // To get all the chat ids
@@ -227,10 +235,7 @@ class FirebaseData {
 
   // Initializa Who ask Who
   void giveQuestions(String roomNumber) async {
-    // Map<String, dynamic>? roomData = await getRoomData(roomNumber);
-    // final int noOfPlayers = roomData!['NoOfPlayers'];
     List<String>? playersNames = await getPlayersNames(roomNumber);
-    // Map<String, String> questions = {};
 
     int id = 0;
     for (int i = 1; i < playersNames!.length; i++) {
@@ -256,7 +261,9 @@ class FirebaseData {
   }
 
   // Get All Questions of a room
-  Future<Map<String, dynamic>?> getAllQuestions(String roomNumber) async {
+  Future<List<Map<String, dynamic>>?> getAllQuestions({
+    required String roomNumber,
+  }) async {
     QuerySnapshot snapshot = await _firestore
         .collection("Rooms")
         .doc(roomNumber)
@@ -265,9 +272,9 @@ class FirebaseData {
 
     if (snapshot.docs.isEmpty) return null;
 
-    Map<String, dynamic> questions = {};
+    List<Map<String, dynamic>> questions = [];
     for (int i = 0; i < snapshot.docs.length; i++) {
-      questions.addAll({
+      questions.add({
         "Ask": snapshot.docs[i]['Ask'],
         "Answer": snapshot.docs[i]['Answer'],
       });
