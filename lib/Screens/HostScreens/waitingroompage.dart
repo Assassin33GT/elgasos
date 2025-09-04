@@ -44,10 +44,7 @@ class WaitingRoomPage extends StatelessWidget {
             fixedSize: Size(double.maxFinite, 50),
           ),
           onPressed: () async {
-            bool fullNot = await FirebaseData().roomFull(
-              roomNumber,
-              noOfPlayers,
-            );
+            bool fullNot = await FirebaseData().roomFull(roomNumber);
             goAnother(fullNot);
 
             fullNot = false;

@@ -109,12 +109,12 @@ class FirebaseData {
   }
 
   // To get the changes in the room data automatically
-  Stream<List<String>> getAllRoomsStream() {
+  Stream<List<Map<String, dynamic>>> getAllRoomsStream() {
     return _firestore.collection("Rooms").snapshots().map((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
-        List<String> rooms = [];
+        List<Map<String, dynamic>> rooms = [];
         querySnapshot.docs.forEach((doc) {
-          rooms.add(doc.id);
+          rooms.add(doc.data());
         });
 
         return rooms;
@@ -124,7 +124,7 @@ class FirebaseData {
   }
 
   // Check if the room full or not
-  Future<bool> roomFull(String roomNumber, int noOfPlayers) async {
+  Future<bool> roomFull(String roomNumber) async {
     DocumentSnapshot snapshot = await _firestore
         .collection("Rooms")
         .doc(roomNumber)
@@ -195,7 +195,27 @@ class FirebaseData {
         });
   }
 
-  // To get all messages for a specific room
+  // Get all messages
+  Future<List<Map<String, dynamic>>?> getAllMessages({
+    required String roomNumber,
+  }) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    List<Map<String, dynamic>> allMessages = [];
+    snapshot.docs.forEach((message) {
+      allMessages.add(message.data() as Map<String, dynamic>);
+    });
+
+    return allMessages;
+  }
+
+  // To get all messages dynamically for a specific room
   Stream getAllMessagesStream(String roomNumber) {
     return _firestore
         .collection("Rooms")

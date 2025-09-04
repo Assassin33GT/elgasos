@@ -161,6 +161,18 @@ class _StartgameState extends State<Startgame> {
                               roomNumber: widget.roomNumber,
                             );
                             message.clear();
+                            final allMessages = await FirebaseData()
+                                .getAllMessages(roomNumber: widget.roomNumber);
+                            for (final msg in allMessages!.reversed) {
+                              if (msg['Ask'] != null && msg['Answer'] != null) {
+                                setState(() {
+                                  _currentAsker = msg['Ask'];
+                                  _currentAnswerer = msg['Answer'];
+                                });
+
+                                break; // Found the most recent one, break the loop.
+                              }
+                            }
                           }
                         },
                         icon: Icon(Icons.send_rounded),
