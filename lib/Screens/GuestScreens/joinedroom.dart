@@ -1,4 +1,6 @@
+import 'package:elgasos/Screens/GameScreens/playeridentityscreen.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 
 class Joinedroom extends StatefulWidget {
@@ -17,6 +19,19 @@ class _JoinedroomState extends State<Joinedroom> {
     FirebaseData().updateRoomData(widget.roomNumber, widget.name);
   }
 
+  void goAnother(bool isStarted) {
+    if (isStarted) {
+      goAnotherPage(
+        context: context,
+        page: PlayerIdentityScreen(
+          roomNumber: widget.roomNumber,
+          playerName: widget.name,
+        ),
+        isRoute: false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +46,7 @@ class _JoinedroomState extends State<Joinedroom> {
             return Center(child: Text("No Data!"));
           }
           final data = snapshot.data!;
+          goAnother(data["Started"]);
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

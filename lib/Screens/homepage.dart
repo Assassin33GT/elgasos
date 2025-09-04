@@ -61,6 +61,15 @@ class Homepage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                  "ElGasos",
+                  style: GoogleFonts.vampiroOne(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 40),
                 InkWell(
                   onTap: () {
                     goAnotherPage(

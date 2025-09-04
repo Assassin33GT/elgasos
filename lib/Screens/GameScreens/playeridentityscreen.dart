@@ -27,9 +27,16 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   @override
   void initState() {
     super.initState();
-    startGiveIdentity();
-    FirebaseData().createChat(widget.roomNumber);
+    startFunctions();
     startTimer();
+  }
+
+  Future<void> startFunctions() async {
+    final names = await FirebaseData().getPlayersNames(widget.roomNumber);
+    if (widget.playerName == names![0]) {
+      startGiveIdentity();
+      FirebaseData().createChat(widget.roomNumber);
+    }
   }
 
   // Timer to go to next page

@@ -57,6 +57,7 @@ class FirebaseData {
         roomData["Creation_Day"] = DateTime.now().day;
         roomData["NoOfPlayers"] = noOfPlayers;
         roomData["NoOfImposters"] = noOfImposters;
+        roomData["Started"] = false;
       } else {
         roomData["Player $i"] = null;
       }
@@ -81,6 +82,12 @@ class FirebaseData {
       noOfImposters: noOfImposters,
     );
     await _firestore.collection("Rooms").doc(roomNumber).set(roomData);
+  }
+
+  void gameStarted(String roomNumber) async {
+    await _firestore.collection("Rooms").doc(roomNumber).update({
+      "Started": true,
+    });
   }
 
   // To update room data when new players come in

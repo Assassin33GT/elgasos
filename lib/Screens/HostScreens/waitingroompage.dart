@@ -20,6 +20,8 @@ class WaitingRoomPage extends StatelessWidget {
   Widget build(BuildContext context) {
     void goAnother(bool fullNot) {
       if (fullNot) {
+        FirebaseData().gameStarted(roomNumber);
+
         FirebaseData().giveQuestions(roomNumber);
 
         goAnotherPage(
@@ -46,7 +48,6 @@ class WaitingRoomPage extends StatelessWidget {
               roomNumber,
               noOfPlayers,
             );
-
             goAnother(fullNot);
 
             fullNot = false;
