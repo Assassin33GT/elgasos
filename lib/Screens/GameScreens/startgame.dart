@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:flutter/material.dart';
@@ -21,19 +19,14 @@ class Startgame extends StatefulWidget {
 class _StartgameState extends State<Startgame> {
   TextEditingController message = TextEditingController();
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  Future<int?>? noOfMessages;
   int? no = 1;
   String? _currentAsker;
   String? _currentAnswerer;
-  late StreamSubscription<int> subscription;
-  bool flag = false;
+  bool canSend = false;
 
   @override
   void initState() {
     super.initState();
-    noOfMessages = Future.value(
-      FirebaseData().getChatIds(roomNumber: widget.roomNumber),
-    );
   }
 
   @override
@@ -73,6 +66,23 @@ class _StartgameState extends State<Startgame> {
                 }
                 final messages = snapshot.data!.docs;
 
+                bool newCanSend = false;
+                if (_currentAsker == widget.playerName && no! % 2 == 1) {
+                  newCanSend = true;
+                } else if (_currentAnswerer == widget.playerName &&
+                    no! % 2 == 0) {
+                  newCanSend = true;
+                }
+
+                // ✅ only call setState if value actually changed
+                if (newCanSend != canSend) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() {
+                      canSend = newCanSend;
+                    });
+                  });
+                }
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: ListView.builder(
@@ -103,17 +113,6 @@ class _StartgameState extends State<Startgame> {
                               answered: true,
                             );
                           }
-
-                          // if (_currentAsker != msg['Asker'] ||
-                          //     _currentAnswerer != msg['Answerer']) {
-                          //   // Schedule the state update for the next frame to avoid doing it during build.
-                          //   WidgetsBinding.instance.addPostFrameCallback((_) {
-                          //     setState(() {
-                          //       _currentAsker = msg['Asker'];
-                          //       _currentAnswerer = msg['Answerer'];
-                          //     });
-                          //   });
-                          // }
                           if (_currentAsker != msg['Asker'] &&
                               msg['Asked'] == false &&
                               msg['Sender'] == "Bot" &&
@@ -122,7 +121,6 @@ class _StartgameState extends State<Startgame> {
                               setState(() {
                                 _currentAsker = msg['Asker'];
                                 no = messages.length;
-                                print(1);
                               });
                             });
                           } else if (_currentAnswerer != msg['Answerer'] &&
@@ -134,14 +132,12 @@ class _StartgameState extends State<Startgame> {
                               setState(() {
                                 _currentAnswerer = msg['Answerer'];
                                 no = messages.length;
-                                print(2);
                               });
                             });
                           }
                           break; // Found the most recent one, break the loop.
                         }
                       }
-                      print(no);
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -206,12 +202,6 @@ class _StartgameState extends State<Startgame> {
                       suffixIcon: IconButton(
                         onPressed: () async {
                           if (message.text.isNotEmpty) {
-                            // To increase noOfMessages by 1
-                            // no = await Future.value(noOfMessages);
-                            // setState(() {
-                            //   no = no! + 1;
-                            // });
-                            // noOfMessages = Future.value(no);
                             // To save Message in the firestore
                             FirebaseData().sendMessage(
                               noOfMessages: no! + 1,
@@ -224,11 +214,7 @@ class _StartgameState extends State<Startgame> {
                         },
                         icon: Icon(Icons.send_rounded),
                       ),
-                      enabled:
-                          _currentAsker == widget.playerName && no! % 2 == 1
-                          ? true
-                          : _currentAnswerer == widget.playerName &&
-                                no! % 2 == 0,
+                      enabled: canSend,
                       hintText: "Enter a message...",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(40),
