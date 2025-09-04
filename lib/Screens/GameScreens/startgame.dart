@@ -120,6 +120,7 @@ class _StartgameState extends State<Startgame> {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 _currentAsker = msg['Asker'];
+                                no = messages.length;
                                 print(1);
                               });
                             });
@@ -131,6 +132,7 @@ class _StartgameState extends State<Startgame> {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 _currentAnswerer = msg['Answerer'];
+                                no = messages.length;
                                 print(2);
                               });
                             });
@@ -138,7 +140,10 @@ class _StartgameState extends State<Startgame> {
                           break; // Found the most recent one, break the loop.
                         }
                       }
-
+                      print(no);
+                      print(
+                        _currentAnswerer == widget.playerName && no! % 2 == 0,
+                      );
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Align(
