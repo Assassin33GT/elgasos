@@ -168,7 +168,8 @@ class _StartgameState extends State<Startgame> {
                       enabled:
                           _currentAsker == widget.playerName && no! % 2 == 1
                           ? true
-                          : _currentAnswerer == widget.playerName,
+                          : _currentAnswerer == widget.playerName &&
+                                no! % 2 == 0,
                       hintText: "Enter a message...",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(40),

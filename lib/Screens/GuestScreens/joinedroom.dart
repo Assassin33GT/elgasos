@@ -20,16 +20,14 @@ class _JoinedroomState extends State<Joinedroom> {
   }
 
   void goAnother(bool isStarted) {
-    if (isStarted) {
-      goAnotherPage(
-        context: context,
-        page: PlayerIdentityScreen(
-          roomNumber: widget.roomNumber,
-          playerName: widget.name,
-        ),
-        isRoute: false,
-      );
-    }
+    goAnotherPage(
+      context: context,
+      page: PlayerIdentityScreen(
+        roomNumber: widget.roomNumber,
+        playerName: widget.name,
+      ),
+      isRoute: false,
+    );
   }
 
   @override
@@ -46,7 +44,13 @@ class _JoinedroomState extends State<Joinedroom> {
             return Center(child: Text("No Data!"));
           }
           final data = snapshot.data!;
-          goAnother(data["Started"]);
+
+          if (data["Started"] == true) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              goAnother(true);
+            });
+          }
+
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
