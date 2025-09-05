@@ -177,7 +177,7 @@ class FirebaseData {
   }
 
   // To create a collection for Messages inside the Room collection
-  void createChat(String roomNumber, String index) async {
+  void botSendMessage(String roomNumber, String index) async {
     String asker = "";
     String answerer = "";
 
@@ -188,24 +188,29 @@ class FirebaseData {
       roomNumber: roomNumber,
     );
 
-    int flag = 0;
     if (index == "1") {
+      print("index 1");
       asker = questions![0]['Asker'];
       answerer = questions[0]['Answerer'];
     } else {
-      allMessages!.reversed.map((doc) {
-        if (doc['Sender'] == "Bot" && flag == 0) {
+      for (final doc in allMessages!.reversed) {
+        print("messageTable");
+        if (doc['Sender'] == "Bot") {
           asker = doc['Asker'];
           answerer = doc['Answerer'];
-          flag = 1;
+          print("flag");
+          break;
         }
-      });
+      }
 
       for (int i = 0; i < questions!.length; i++) {
+        print("questionTable");
         if (questions[i]['Asker'] == asker &&
             questions[i]['Answerer'] == answerer) {
           asker = questions[i + 1]['Asker'];
           answerer = questions[i + 1]['Answerer'];
+          print("Asker: $asker");
+          print("Answerer: $answerer");
           break;
         }
       }
@@ -242,7 +247,7 @@ class FirebaseData {
     snapshot.docs.forEach((message) {
       allMessages.add(message.data() as Map<String, dynamic>);
     });
-
+    print("All messages: $allMessages");
     return allMessages;
   }
 

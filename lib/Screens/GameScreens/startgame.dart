@@ -31,20 +31,6 @@ class _StartgameState extends State<Startgame> {
 
   @override
   Widget build(BuildContext context) {
-    void reValue(int noOfMessages) async {
-      final Map<String, dynamic>? lastBotMessage = await FirebaseData()
-          .getLastBotMessage(widget.roomNumber);
-      if (lastBotMessage!['Asked'] == true &&
-          lastBotMessage['Answered'] == true) {
-        setState(() {
-          FirebaseData().createChat(widget.roomNumber, noOfMessages.toString());
-          _currentAsker = null;
-          _currentAnswerer = null;
-          canSend = false;
-        });
-      }
-    }
-
     void updateBool({
       bool? asked,
       bool? answered,
@@ -93,7 +79,6 @@ class _StartgameState extends State<Startgame> {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     setState(() {
                       canSend = newCanSend;
-                      reValue(no!);
                     });
                   });
                 }
@@ -113,16 +98,13 @@ class _StartgameState extends State<Startgame> {
                       for (final msg in messages.reversed) {
                         if (msg['Asker'] != null && msg['Answerer'] != null) {
                           // 3. UPDATE THE STATE (and trigger a rebuild)
-                          if (messages.length % 2 == 0 &&
-                              msg['Sender'] == "Bot") {
-                            updateBool(
-                              index: (index + 1).toString(),
-                              asked: true,
-                            );
-                          } else if (messages.length % 2 == 1 &&
+                          if (messages.length % 2 == 1 &&
                               msg['Asked'] == true &&
                               msg['Sender'] == "Bot" &&
-                              msg['Answered'] == false) {
+                              msg['Answered'] == false &&
+                              messages[no! - 1]['Sender'] != "Bot") {
+                            print("Answerer in");
+
                             updateBool(
                               index: (index + 1).toString(),
                               answered: true,
@@ -224,6 +206,24 @@ class _StartgameState extends State<Startgame> {
                               playerName: widget.playerName,
                               roomNumber: widget.roomNumber,
                             );
+
+                            if (_currentAsker == widget.playerName) {
+                              await firestore
+                                  .collection("Rooms")
+                                  .doc(widget.roomNumber)
+                                  .collection("Chat")
+                                  .doc((no! + 1).toString())
+                                  .update({"Asked": true});
+                            }
+
+                            if (_currentAnswerer == widget.playerName) {
+                              await firestore
+                                  .collection("Rooms")
+                                  .doc(widget.roomNumber)
+                                  .collection("Chat")
+                                  .doc((no! + 1).toString())
+                                  .update({"Answered": true});
+                            }
                             message.clear();
                           }
                         },
