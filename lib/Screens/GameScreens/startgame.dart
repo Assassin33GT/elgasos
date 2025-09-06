@@ -62,12 +62,17 @@ class _StartgameState extends State<Startgame> {
                       final isCurrentPlayer =
                           msg['Sender'] == widget.playerName;
                       no = messages.length;
+                      print("asd:$_currentAnswerer");
 
-                      for (final msg in messages.reversed) {
+                      for (final msg in messages) {
+                        print("asd:$_currentAnswerer");
+                        print("asd2:$_currentAsker");
+
                         if (msg['Sender'] == "Bot" &&
                             _activeBotId != msg.id &&
                             (msg['Asked'] == false ||
                                 msg['Answered'] == false)) {
+                          print("asd:$_currentAnswerer");
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             setState(() {
                               _activeBotId = msg
@@ -79,7 +84,7 @@ class _StartgameState extends State<Startgame> {
                       }
 
                       // To know asker and who should answer
-                      for (final msg in messages.reversed) {
+                      for (final msg in messages) {
                         if (msg['Asker'] != widget.playerName &&
                             msg['Sender'] == "Bot") {
                           WidgetsBinding.instance.addPostFrameCallback((_) {

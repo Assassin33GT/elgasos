@@ -193,7 +193,7 @@ class FirebaseData {
       asker = questions![0]['Asker'];
       answerer = questions[0]['Answerer'];
     } else {
-      for (final doc in allMessages!.reversed) {
+      for (final doc in allMessages!) {
         print("messageTable");
         if (doc['Sender'] == "Bot") {
           asker = doc['Asker'];
@@ -284,7 +284,7 @@ class FirebaseData {
   Future<Map<String, dynamic>?> getLastBotMessage(String roomNumber) async {
     final allMessages = await getAllMessages(roomNumber: roomNumber);
 
-    allMessages!.reversed.map((doc) {
+    allMessages!.map((doc) {
       if (doc['Sender'] == "Bot") {
         return doc;
       }
