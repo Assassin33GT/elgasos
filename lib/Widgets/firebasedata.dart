@@ -242,6 +242,7 @@ class FirebaseData {
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
+        .orderBy("MessageNumber", descending: true)
         .get();
 
     if (snapshot.docs.isEmpty) return null;
@@ -298,6 +299,7 @@ class FirebaseData {
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
+        .orderBy("MessageNumber", descending: true)
         .get();
 
     if (snapshot.docs.isEmpty) return null;
