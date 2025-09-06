@@ -229,6 +229,7 @@ class FirebaseData {
           "Sender": "Bot",
           "Asked": false,
           "Answered": false,
+          "MessageNumber": int.parse(index),
           "Timestamp": FieldValue.serverTimestamp(),
         });
   }
@@ -274,7 +275,7 @@ class FirebaseData {
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
-        .orderBy("Timestamp")
+        .orderBy("MessageNumber", descending: true)
         .snapshots();
   }
 
@@ -342,6 +343,7 @@ class FirebaseData {
           "Answerer": null,
           "Answered": null,
           "Asked": null,
+          "MessageNumber": noOfMessages,
           "Timestamp": FieldValue.serverTimestamp(),
         });
   }
