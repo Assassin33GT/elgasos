@@ -77,16 +77,25 @@ class _StartgameState extends State<Startgame> {
                           break; // found the active Bot doc, stop searching
                         }
                       }
+
                       // To know asker and who should answer
                       for (final msg in messages.reversed) {
+                        if (msg['Asker'] != widget.playerName &&
+                            msg['Sender'] == "Bot") {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _currentAsker = null;
+                          });
+                        }
                         if (msg['Sender'] == "Bot" &&
                             msg['Asked'] == true &&
-                            msg['Answered'] == true) {
+                            msg['Answered'] == true &&
+                            _currentAnswerer != null) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             setState(() {
                               _currentAsker = null;
                               _currentAnswerer = null;
                               canSend = false;
+                              newCanSend = false;
                               no = messages.length;
                             });
                           });
@@ -97,10 +106,14 @@ class _StartgameState extends State<Startgame> {
                           if (_currentAsker == widget.playerName &&
                               msg['Asked'] == false) {
                             newCanSend = true;
+                            print("New Can Send: ${_currentAsker}");
                           } else if (_currentAnswerer == widget.playerName &&
                               msg['Asked'] == true &&
                               msg['Answered'] == false) {
                             newCanSend = true;
+                            print("New Can Send: $newCanSend");
+                          } else {
+                            newCanSend = false;
                           }
 
                           // ✅ only call setState if value actually changed
