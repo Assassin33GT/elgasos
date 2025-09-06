@@ -208,20 +208,26 @@ class _StartgameState extends State<Startgame> {
                             );
 
                             if (_currentAsker == widget.playerName) {
+                              final String? lastBotId = await FirebaseData()
+                                  .getLastBotMessageId(widget.roomNumber);
                               await firestore
                                   .collection("Rooms")
                                   .doc(widget.roomNumber)
                                   .collection("Chat")
-                                  .doc((no! + 1).toString())
+                                  .doc(lastBotId)
                                   .update({"Asked": true});
                             }
 
+                            setState(() {});
+
                             if (_currentAnswerer == widget.playerName) {
+                              final String? lastBotId = await FirebaseData()
+                                  .getLastBotMessageId(widget.roomNumber);
                               await firestore
                                   .collection("Rooms")
                                   .doc(widget.roomNumber)
                                   .collection("Chat")
-                                  .doc((no! + 1).toString())
+                                  .doc(lastBotId)
                                   .update({"Answered": true});
                             }
                             message.clear();

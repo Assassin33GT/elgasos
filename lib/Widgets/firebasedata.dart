@@ -273,6 +273,25 @@ class FirebaseData {
     return null;
   }
 
+  // Get id of last bot message
+  Future<String?> getLastBotMessageId(String roomNumber) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      if (snapshot.docs[i]['Sender'] == "Bot") {
+        return snapshot.docs[i].id;
+      }
+    }
+
+    return null;
+  }
+
   // When a user send a message this function called to save the message inside firestore
   void sendMessage({
     required String message,
