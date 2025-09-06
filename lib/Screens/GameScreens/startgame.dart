@@ -23,6 +23,7 @@ class _StartgameState extends State<Startgame> {
   String? _currentAsker;
   String? _currentAnswerer;
   bool canSend = false;
+  String? _activeBotId;
 
   @override
   void initState() {
@@ -62,16 +63,38 @@ class _StartgameState extends State<Startgame> {
                           msg['Sender'] == widget.playerName;
                       no = messages.length;
 
+                      for (final msg in messages.reversed) {
+                        if (msg['Sender'] == "Bot" &&
+                            _activeBotId != msg.id &&
+                            (msg['Asked'] == false ||
+                                msg['Answered'] == false)) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            setState(() {
+                              _activeBotId = msg
+                                  .id; // <-- Save the "current round" Bot message
+                            });
+                          });
+                          break; // found the active Bot doc, stop searching
+                        }
+                      }
                       // To know asker and who should answer
                       for (final msg in messages.reversed) {
-                        if (msg['Asker'] == true && msg['Answerer'] == true) {
+                        if (msg['Sender'] == "Bot" &&
+                            msg['Asked'] == true &&
+                            msg['Answered'] == true) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             setState(() {
                               _currentAsker = null;
                               _currentAnswerer = null;
+                              canSend = false;
                               no = messages.length;
                             });
                           });
+                          // Send Bot Message after Answerer send Message
+                          FirebaseData().botSendMessage(
+                            widget.roomNumber,
+                            (no! + 1).toString(),
+                          );
                         }
 
                         if (msg['Asker'] != null && msg['Answerer'] != null) {
@@ -193,35 +216,27 @@ class _StartgameState extends State<Startgame> {
 
                             // Change in database
                             if (_currentAsker == widget.playerName) {
-                              final String? lastBotId = await FirebaseData()
-                                  .getLastBotMessageId(widget.roomNumber);
                               await firestore
                                   .collection("Rooms")
                                   .doc(widget.roomNumber)
                                   .collection("Chat")
-                                  .doc(lastBotId)
+                                  .doc(_activeBotId)
                                   .update({"Asked": true});
                             }
 
                             // Change in database
                             if (_currentAnswerer == widget.playerName) {
-                              final String? lastBotId = await FirebaseData()
-                                  .getLastBotMessageId(widget.roomNumber);
                               await firestore
                                   .collection("Rooms")
                                   .doc(widget.roomNumber)
                                   .collection("Chat")
-                                  .doc(lastBotId)
+                                  .doc(_activeBotId)
                                   .update({"Answered": true});
-                              // Send Bot Message after Answerer send Message
-                              FirebaseData().botSendMessage(
-                                widget.roomNumber,
-                                (no! + 1).toString(),
-                              );
-                              setState(() {
-                                _currentAnswerer = null;
-                                _currentAsker = null;
-                              });
+
+                              // setState(() {
+                              //   _currentAnswerer = null;
+                              //   _currentAsker = null;
+                              // });
                             }
                             setState(() {});
                             message.clear();

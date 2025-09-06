@@ -247,7 +247,6 @@ class FirebaseData {
     snapshot.docs.forEach((message) {
       allMessages.add(message.data() as Map<String, dynamic>);
     });
-    print("All messages: $allMessages");
     return allMessages;
   }
 
