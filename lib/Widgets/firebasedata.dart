@@ -251,6 +251,22 @@ class FirebaseData {
     return allMessages;
   }
 
+  Future<Map<String, dynamic>?> getSpecificMessage({
+    required String roomNumber,
+    required String id,
+  }) async {
+    DocumentSnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .doc(id)
+        .get();
+
+    if (!snapshot.exists) return null;
+
+    return snapshot.data() as Map<String, dynamic>;
+  }
+
   // To get all messages dynamically for a specific room
   Stream getAllMessagesStream(String roomNumber) {
     return _firestore
@@ -292,6 +308,17 @@ class FirebaseData {
     return null;
   }
 
+  Future<bool?> checkIsAskedAndIsAnswered(String roomNumber) async {
+    Map<String, dynamic>? lastBotMessage = await getLastBotMessage(roomNumber);
+
+    if (lastBotMessage!['Answered'] == true &&
+        lastBotMessage['Asked'] == true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // When a user send a message this function called to save the message inside firestore
   void sendMessage({
     required String message,
@@ -311,6 +338,8 @@ class FirebaseData {
           "Sender": playerName,
           "Asker": null,
           "Answerer": null,
+          "Answered": null,
+          "Asked": null,
         });
   }
 
