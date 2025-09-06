@@ -81,11 +81,21 @@ class _StartgameState extends State<Startgame> {
 
                       // To know asker and who should answer
                       for (final msg in messages.reversed) {
+                        if (msg['Asker'] == true && msg['Answerer'] == true) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            setState(() {
+                              _currentAsker = null;
+                              _currentAnswerer = null;
+                              no = messages.length;
+                            });
+                          });
+                        }
+
                         if (msg['Asker'] != null && msg['Answerer'] != null) {
                           if (_currentAsker != msg['Asker'] &&
                               msg['Asked'] == false &&
                               msg['Sender'] == "Bot" &&
-                              messages.length % 2 == 1) {
+                              widget.playerName == msg['Asker']) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 _currentAsker = msg['Asker'];
@@ -96,7 +106,7 @@ class _StartgameState extends State<Startgame> {
                               msg['Asked'] == true &&
                               msg['Answered'] == false &&
                               msg['Sender'] == "Bot" &&
-                              messages.length % 2 == 0) {
+                              widget.playerName == msg['Answerer']) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               setState(() {
                                 _currentAnswerer = msg['Answerer'];
@@ -201,7 +211,7 @@ class _StartgameState extends State<Startgame> {
                                   .collection("Chat")
                                   .doc(lastBotId)
                                   .update({"Answered": true});
-
+                              // Send Bot Message after Answerer send Message
                               FirebaseData().botSendMessage(
                                 widget.roomNumber,
                                 (no! + 1).toString(),
