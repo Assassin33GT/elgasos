@@ -204,8 +204,9 @@ class FirebaseData {
       }
 
       for (int i = 0; i < questions!.length; i++) {
-        print("questionTable");
-        if (questions[i]['Asker'] == asker &&
+        if (i + 1 >= questions.length) {
+          print("end");
+        } else if (questions[i]['Asker'] == asker &&
             questions[i]['Answerer'] == answerer) {
           asker = questions[i + 1]['Asker'];
           answerer = questions[i + 1]['Answerer'];
@@ -228,6 +229,7 @@ class FirebaseData {
           "Sender": "Bot",
           "Asked": false,
           "Answered": false,
+          "Timestamp": FieldValue.serverTimestamp(),
         });
   }
 
@@ -272,6 +274,7 @@ class FirebaseData {
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Chat")
+        .orderBy("Timestamp")
         .snapshots();
   }
 
@@ -339,6 +342,7 @@ class FirebaseData {
           "Answerer": null,
           "Answered": null,
           "Asked": null,
+          "Timestamp": FieldValue.serverTimestamp(),
         });
   }
 
