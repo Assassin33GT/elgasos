@@ -51,23 +51,6 @@ class _StartgameState extends State<Startgame> {
                 final messages = snapshot.data!.docs;
                 bool newCanSend = false;
 
-                // Enable the Input Controller for user
-                if (_currentAsker == widget.playerName && no! % 2 == 1) {
-                  newCanSend = true;
-                } else if (_currentAnswerer == widget.playerName &&
-                    no! % 2 == 0) {
-                  newCanSend = true;
-                }
-
-                // ✅ only call setState if value actually changed
-                if (newCanSend != canSend) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    setState(() {
-                      canSend = newCanSend;
-                    });
-                  });
-                }
-
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: ListView.builder(
@@ -92,6 +75,25 @@ class _StartgameState extends State<Startgame> {
                         }
 
                         if (msg['Asker'] != null && msg['Answerer'] != null) {
+                          // Enable the Input Controller for user
+                          if (_currentAsker == widget.playerName &&
+                              msg['Asked'] == false) {
+                            newCanSend = true;
+                          } else if (_currentAnswerer == widget.playerName &&
+                              msg['Asked'] == true &&
+                              msg['Answered'] == false) {
+                            newCanSend = true;
+                          }
+
+                          // ✅ only call setState if value actually changed
+                          if (newCanSend != canSend) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              setState(() {
+                                canSend = newCanSend;
+                              });
+                            });
+                          }
+
                           if (_currentAsker != msg['Asker'] &&
                               msg['Asked'] == false &&
                               msg['Sender'] == "Bot" &&
@@ -216,10 +218,13 @@ class _StartgameState extends State<Startgame> {
                                 widget.roomNumber,
                                 (no! + 1).toString(),
                               );
+                              setState(() {
+                                _currentAnswerer = null;
+                                _currentAsker = null;
+                              });
                             }
-
-                            message.clear();
                             setState(() {});
+                            message.clear();
                           }
                         },
                         icon: Icon(Icons.send_rounded),
