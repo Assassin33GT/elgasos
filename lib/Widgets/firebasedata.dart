@@ -177,7 +177,7 @@ class FirebaseData {
   }
 
   // To create a collection for Messages inside the Room collection
-  void botSendMessage(String roomNumber, String index) async {
+  Future<void> botSendMessage(String roomNumber, String index) async {
     String asker = "";
     String answerer = "";
 

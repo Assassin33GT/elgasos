@@ -90,11 +90,6 @@ class _StartgameState extends State<Startgame> {
                               no = messages.length;
                             });
                           });
-                          // Send Bot Message after Answerer send Message
-                          FirebaseData().botSendMessage(
-                            widget.roomNumber,
-                            (no! + 1).toString(),
-                          );
                         }
 
                         if (msg['Asker'] != null && msg['Answerer'] != null) {
@@ -233,6 +228,11 @@ class _StartgameState extends State<Startgame> {
                                   .doc(_activeBotId)
                                   .update({"Answered": true});
 
+                              // Send Bot Message after Answerer send Message
+                              await FirebaseData().botSendMessage(
+                                widget.roomNumber,
+                                (no! + 1).toString(),
+                              );
                               // setState(() {
                               //   _currentAnswerer = null;
                               //   _currentAsker = null;
