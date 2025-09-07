@@ -28,27 +28,26 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   @override
   void initState() {
     super.initState();
-    getNumberOfQuestions();
     startFunctions();
+    FirebaseData().giveQuestions(widget.roomNumber);
     startTimer();
-  }
-
-  void getNumberOfQuestions() async {
-    noOfQuestions = await FirebaseData().getNumberOfQuestions(
-      roomNumber: widget.roomNumber,
-    );
   }
 
   Future<void> startFunctions() async {
     final names = await FirebaseData().getPlayersNames(widget.roomNumber);
     if (widget.playerName == names![0]) {
+      await FirebaseData().botSendMessage(widget.roomNumber, "1");
       startGiveIdentity();
-      FirebaseData().botSendMessage(widget.roomNumber, "1");
     }
   }
 
   // Timer to go to next page
-  void startTimer() {
+  void startTimer() async {
+    noOfQuestions = await FirebaseData().getNumberOfQuestions(
+      roomNumber: widget.roomNumber,
+    );
+
+    print("noOfQuestions$noOfQuestions");
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         goAnotherPage(

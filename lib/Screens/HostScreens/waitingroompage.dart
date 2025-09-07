@@ -18,11 +18,13 @@ class WaitingRoomPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void goAnother(bool fullNot) {
-      if (fullNot) {
-        FirebaseData().gameStarted(roomNumber);
+    int flag = 0;
 
-        FirebaseData().giveQuestions(roomNumber);
+    void goAnother(bool fullNot) async {
+      if (fullNot) {
+        flag++;
+        await FirebaseData().giveQuestions(roomNumber);
+        FirebaseData().gameStarted(roomNumber);
 
         goAnotherPage(
           context: context,
@@ -87,6 +89,11 @@ class WaitingRoomPage extends StatelessWidget {
                           ? "Player $i: waiting..."
                           : "Player $i: ${data["Player $i"]}",
                       style: TextStyle(color: Colors.white, fontSize: 30),
+                    ),
+                  if (flag == 1)
+                    Text(
+                      "Game will start soon...",
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                 ],
               ),

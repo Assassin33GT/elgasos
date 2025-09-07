@@ -72,7 +72,6 @@ class _StartgameState extends State<Startgame> {
                             _activeBotId != msg.id &&
                             (msg['Asked'] == false ||
                                 msg['Answered'] == false)) {
-                          print("asd:$_currentAnswerer");
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             setState(() {
                               _activeBotId = msg
@@ -111,12 +110,10 @@ class _StartgameState extends State<Startgame> {
                           if (_currentAsker == widget.playerName &&
                               msg['Asked'] == false) {
                             newCanSend = true;
-                            print("New Can Send: ${_currentAsker}");
                           } else if (_currentAnswerer == widget.playerName &&
                               msg['Asked'] == true &&
                               msg['Answered'] == false) {
                             newCanSend = true;
-                            print("New Can Send: $newCanSend");
                           } else {
                             newCanSend = false;
                           }
@@ -158,7 +155,7 @@ class _StartgameState extends State<Startgame> {
 
                       return FutureBuilder(
                         future: FirebaseData().getNumberOfBotQuestions(
-                          roomNumber: widget.playerName,
+                          roomNumber: widget.roomNumber,
                         ),
                         builder: (context, questionsSnapshot) {
                           if (questionsSnapshot.connectionState ==
@@ -174,7 +171,8 @@ class _StartgameState extends State<Startgame> {
                             return Center(child: Text("No questions yet."));
                           }
                           final int noOfBotQuestions = questionsSnapshot.data!;
-
+                          print("Bot:$noOfBotQuestions");
+                          print("Quest:${widget.noOfQuestions}");
                           if (noOfBotQuestions == widget.noOfQuestions) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               goAnotherPage(

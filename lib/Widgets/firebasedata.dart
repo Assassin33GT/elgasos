@@ -464,7 +464,7 @@ class FirebaseData {
   }
 
   // Initializa Who ask Who
-  void giveQuestions(String roomNumber) async {
+  Future<void> giveQuestions(String roomNumber) async {
     List<String>? playersNames = await getPlayersNames(roomNumber);
 
     int id = 0;
@@ -518,8 +518,6 @@ class FirebaseData {
       roomNumber: roomNumber,
     );
 
-    if (questions!.isEmpty) return null;
-
-    return questions.length;
+    return questions!.length;
   }
 }
