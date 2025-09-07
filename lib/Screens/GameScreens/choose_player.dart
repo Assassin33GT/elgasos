@@ -20,6 +20,8 @@ class ChoosePlayer extends StatefulWidget {
 }
 
 class _ChoosePlayerState extends State<ChoosePlayer> {
+  String asker = "";
+
   @override
   Widget build(BuildContext context) {
     void startTimer() {
@@ -52,9 +54,39 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
           }
 
           final List<Map<String, dynamic>> playersAsk = snapshot.data!;
-          List<String> playersNames = [];
 
+          List<String> playersNames = [];
           playersAsk.forEach((playerAsk) {
+            if (playerAsk['Asker'] == asker && playerAsk['Will Ask'] != null) {
+              if (playerAsk['Will Ask'] == true) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  goAnotherPage(
+                    context: context,
+                    page: Startgame(
+                      playerName: widget.playerName,
+                      roomNumber: widget.roomNumber,
+                      noOfQuestions: widget.noOfQuestions + 1,
+                    ),
+                    isRoute: false,
+                  );
+                });
+              } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  goAnotherPage(
+                    context: context,
+                    page: ChoosePlayer(
+                      roomNumber: widget.roomNumber,
+                      playerName: widget.playerName,
+                      noOfQuestions: widget.noOfQuestions,
+                    ),
+                    isRoute: false,
+                  );
+                });
+              }
+            }
+            if (playerAsk['Will Ask'] == null && asker == "") {
+              asker = playerAsk['Asker'];
+            }
             if (playerAsk['Asker'] != widget.playerName) {
               playersNames.add(playerAsk['Asker']);
             }
@@ -62,71 +94,81 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
           playersNames.add("No One");
           int counter = 0;
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Which Player you want to ask?",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                ...playersNames.map((player) {
-                  counter++;
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        FirebaseData().updatePlayerAsk(
-                          answerer: player == "No One" ? player : "",
-                          id: counter.toString(),
-                          roomNumber: widget.roomNumber,
-                          willAsk: player != "No One" ? true : false,
-                        );
-                        if (player != "No One") {
-                          FirebaseData().playerMakeBotSendMessage(
-                            widget.roomNumber,
-                            widget.playerName,
-                            player,
-                          );
-                        }
-
-                        startTimer();
-                      },
-                      child: Container(
-                        width: 200,
-                        decoration: BoxDecoration(
-                          color: Colors.orangeAccent,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.deepOrange,
-                            width: 2,
-                          ),
+          return asker == widget.playerName
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Which Player you want to ask?",
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Colors.white70,
                         ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              player,
-                              style: GoogleFonts.varela(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(height: 30),
+                      ...playersNames.map((player) {
+                        counter++;
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: InkWell(
+                            onTap: () {
+                              FirebaseData().updatePlayerAsk(
+                                answerer: player == "No One" ? player : "",
+                                id: counter.toString(),
+                                roomNumber: widget.roomNumber,
+                                willAsk: player != "No One" ? true : false,
+                              );
+                              if (player != "No One") {
+                                FirebaseData().playerMakeBotSendMessage(
+                                  widget.roomNumber,
+                                  widget.playerName,
+                                  player,
+                                );
+                              }
+                              startTimer();
+                            },
+                            child: Container(
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.orangeAccent,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.deepOrange,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    player,
+                                    style: GoogleFonts.varela(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
+                    ],
+                  ),
+                )
+              : Center(
+                  child: Text(
+                    "Waiting $asker to choose...",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: Colors.white70,
                     ),
-                  );
-                }),
-              ],
-            ),
-          );
+                  ),
+                );
         },
       ),
     );

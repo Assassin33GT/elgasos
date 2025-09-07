@@ -89,7 +89,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
 
           return Center(
             child: Text(
-              data![widget.playerName] == true ? "جاسوس" : "كلمة السر: بطيخ",
+              data![widget.playerName] == false ? "كلمة السر: بطيخ" : "جاسوس",
               style: GoogleFonts.poppins(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
