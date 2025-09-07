@@ -1,15 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:elgasos/Screens/GameScreens/choose_player.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Startgame extends StatefulWidget {
   final String playerName;
   final String roomNumber;
+  final int noOfQuestions;
   const Startgame({
     super.key,
     required this.playerName,
     required this.roomNumber,
+    required this.noOfQuestions,
   });
 
   @override
@@ -45,7 +49,7 @@ class _StartgameState extends State<Startgame> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text("An error happend!"));
+                  return Center(child: Text("An error happend stream!"));
                 } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return Center(child: Text("No messages yet."));
                 }
@@ -62,12 +66,8 @@ class _StartgameState extends State<Startgame> {
                       final isCurrentPlayer =
                           msg['Sender'] == widget.playerName;
                       no = messages.length;
-                      print("asd:$_currentAnswerer");
 
                       for (final msg in messages) {
-                        print("asd:$_currentAnswerer");
-                        print("asd2:$_currentAsker");
-
                         if (msg['Sender'] == "Bot" &&
                             _activeBotId != msg.id &&
                             (msg['Asked'] == false ||
@@ -156,51 +156,85 @@ class _StartgameState extends State<Startgame> {
                         }
                       }
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Align(
-                          alignment: isCurrentPlayer
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isCurrentPlayer
-                                  ? Colors.orange
-                                  : Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  msg['Msg'],
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  msg['Sender'],
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      94,
-                                      91,
-                                      91,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      return FutureBuilder(
+                        future: FirebaseData().getNumberOfBotQuestions(
+                          roomNumber: widget.playerName,
                         ),
+                        builder: (context, questionsSnapshot) {
+                          if (questionsSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: Container());
+                          } else if (questionsSnapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                "An error happened! ${questionsSnapshot.error}",
+                              ),
+                            );
+                          } else if (!questionsSnapshot.hasData) {
+                            return Center(child: Text("No questions yet."));
+                          }
+                          final int noOfBotQuestions = questionsSnapshot.data!;
+
+                          if (noOfBotQuestions == widget.noOfQuestions) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              goAnotherPage(
+                                context: context,
+                                page: ChoosePlayer(
+                                  roomNumber: widget.roomNumber,
+                                  playerName: widget.playerName,
+                                  noOfQuestions: widget.noOfQuestions,
+                                ),
+                                isRoute: false,
+                              );
+                            });
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Align(
+                              alignment: isCurrentPlayer
+                                  ? Alignment.centerLeft
+                                  : Alignment.centerRight,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isCurrentPlayer
+                                      ? Colors.orange
+                                      : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      msg['Msg'],
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      msg['Sender'],
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          94,
+                                          91,
+                                          91,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),

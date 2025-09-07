@@ -42,6 +42,14 @@ class FirebaseData {
     return playersNames;
   }
 
+  Future<int?> getNumberOfPlayers(String roomNumber) async {
+    final Map<String, dynamic>? data = await getRoomData(roomNumber);
+
+    if (data!.isEmpty) return null;
+
+    return data['NoOfPlayers'];
+  }
+
   // Used in Create Room to create a map for the saved data
   Map<String, dynamic> createRoomData({
     required Map<String, dynamic> roomData,
@@ -176,6 +184,20 @@ class FirebaseData {
     await _firestore.collection("Rooms").doc(roomNumber).update(identityData);
   }
 
+  // Create a document for players who will ask
+  void playersAsk({required String roomNumber}) async {
+    final List<String>? playersNames = await getPlayersNames(roomNumber);
+
+    for (int i = 0; i < playersNames!.length; i++) {
+      _firestore
+          .collection("Rooms")
+          .doc(roomNumber)
+          .collection("Players Ask")
+          .doc((i + 1).toString())
+          .set({"Asker": playersNames[i], "Answerer": "", "Will Ask": null});
+    }
+  }
+
   // To create a collection for Messages inside the Room collection
   Future<void> botSendMessage(String roomNumber, String index) async {
     String asker = "";
@@ -254,6 +276,7 @@ class FirebaseData {
     return allMessages;
   }
 
+  // To get a specific message in the chat collection
   Future<Map<String, dynamic>?> getSpecificMessage({
     required String roomNumber,
     required String id,
@@ -280,6 +303,64 @@ class FirebaseData {
         .snapshots();
   }
 
+  // To update Players Ask collection if player will ask
+  void updatePlayerAsk({
+    required String roomNumber,
+    required String id,
+    required bool willAsk,
+    required String answerer,
+  }) async {
+    _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Players Ask")
+        .doc(id)
+        .update({"Answerer": answerer, "Will Ask": willAsk});
+  }
+
+  // To get no of bot questions in the chat collection
+  Future<int?> getNumberOfBotQuestions({required String roomNumber}) async {
+    final List<Map<String, dynamic>>? allMessages = await getAllMessages(
+      roomNumber: roomNumber,
+    );
+
+    int noOfBotQuestions = 0;
+    allMessages!.forEach((doc) {
+      if (doc['Sender'] == "Bot") {
+        noOfBotQuestions++;
+      }
+    });
+
+    return noOfBotQuestions;
+  }
+
+  // When player choose player to ask
+  void playerMakeBotSendMessage(
+    String roomNumber,
+    String asker,
+    String answerer,
+  ) async {
+    List<Map<String, dynamic>>? allMessages = await getAllMessages(
+      roomNumber: roomNumber,
+    );
+
+    await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Chat")
+        .doc((allMessages!.length + 1).toString())
+        .set({
+          "Msg": "$asker ask $answerer",
+          "Asker": asker,
+          "Answerer": answerer,
+          "Sender": "Bot",
+          "Asked": false,
+          "Answered": false,
+          "MessageNumber": allMessages.length + 1,
+          "Timestamp": FieldValue.serverTimestamp(),
+        });
+  }
+
   // To get the last bot message in a room
   Future<Map<String, dynamic>?> getLastBotMessage(String roomNumber) async {
     final allMessages = await getAllMessages(roomNumber: roomNumber);
@@ -291,6 +372,24 @@ class FirebaseData {
     });
 
     return null;
+  }
+
+  // To get the Players Ask Document Stream
+  Stream<List<Map<String, dynamic>>?> getPlayersAskStream(String roomNumber) {
+    return _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Players Ask")
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.docs.isEmpty) return null;
+          List<Map<String, dynamic>> playersAsk = [];
+          snapshot.docs.forEach((doc) {
+            playersAsk.add(doc.data());
+          });
+
+          return playersAsk;
+        });
   }
 
   // Get id of last bot message
@@ -412,5 +511,15 @@ class FirebaseData {
     }
 
     return questions;
+  }
+
+  Future<int?> getNumberOfQuestions({required String roomNumber}) async {
+    List<Map<String, dynamic>>? questions = await getAllQuestions(
+      roomNumber: roomNumber,
+    );
+
+    if (questions!.isEmpty) return null;
+
+    return questions.length;
   }
 }
