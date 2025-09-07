@@ -40728,7 +40728,7 @@ N(a){var s,r,q,p,o,n=null,m=A.en(40),l=A.wh(B.lZ,3),k=t.E
 m=A.X3(A.c([A.eV(n,new A.Hx(A.a3t(n,n,A.ry(B.Eu,B.lZ,n,n),n,n,new A.a3f(),n,n,n),B.k,n),B.x,n,n,new A.cY(n,n,l,m,n,n,B.am),n,n,n,n,n,n,n)],k),B.k,60)
 l=t.sq
 s=A.c([new A.dj(2,B.ck,B.Ca,B.h,3)],l)
-r=A.bA("ElGasos",n,n,n,A.aPu().$3$color$fontSize$fontWeight(B.k,40,B.ad),n,n)
+r=A.bA("ElGasos**",n,n,n,A.aPu().$3$color$fontSize$fontWeight(B.k,40,B.ad),n,n)
 q=A.en(30)
 p=A.wh(B.bk,3)
 o=A.c([new A.dj(0,B.ck,B.bk,B.h,10)],l)
