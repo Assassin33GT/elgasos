@@ -172,8 +172,7 @@ class _StartgameState extends State<Startgame> {
                           final Map<String, dynamic> data =
                               questionsSnapshot.data!;
                           final int noOfBotQuestions = data['noOfBotQuestions'];
-                          print("Bot:$noOfBotQuestions");
-                          print("Quest:${widget.noOfQuestions}");
+                          print(data);
                           if (noOfBotQuestions == widget.noOfQuestions &&
                               data['Asked'] == true &&
                               data['Answered'] == true) {

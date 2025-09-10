@@ -343,6 +343,26 @@ class FirebaseData {
     return noOfBotQuestions;
   }
 
+  // To get the last bot message in a room
+  Future<Map<String, dynamic>?> getLastBotMessage(String roomNumber) async {
+    final List<Map<String, dynamic>>? allMessages = await getAllMessages(
+      roomNumber: roomNumber,
+    );
+
+    for (int i = 0; i < allMessages!.length; i++) {
+      if (allMessages[i]['Sender'] == "Bot") {
+        return allMessages[i];
+      }
+    }
+    // allMessages!.map((doc) {
+    //   if (doc['Sender'] == "Bot") {
+    //     return doc;
+    //   }
+    // });
+
+    return null;
+  }
+
   Future<Map<String, dynamic>?> getNoOfBotMessagesAndSomeLastBotMessageData({
     required String roomNumber,
   }) async {
@@ -370,7 +390,7 @@ class FirebaseData {
         "Answered": lastBotQuestion['Answered'],
       };
     }
-
+    print(values);
     return values;
   }
 
@@ -399,19 +419,6 @@ class FirebaseData {
           "MessageNumber": allMessages.length + 1,
           "Timestamp": FieldValue.serverTimestamp(),
         });
-  }
-
-  // To get the last bot message in a room
-  Future<Map<String, dynamic>?> getLastBotMessage(String roomNumber) async {
-    final allMessages = await getAllMessages(roomNumber: roomNumber);
-
-    allMessages!.map((doc) {
-      if (doc['Sender'] == "Bot") {
-        return doc;
-      }
-    });
-
-    return null;
   }
 
   // To get the Players Ask Document Stream
