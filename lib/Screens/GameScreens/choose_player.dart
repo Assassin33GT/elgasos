@@ -24,22 +24,6 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    void startTimer() {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          goAnotherPage(
-            context: context,
-            page: Startgame(
-              playerName: widget.playerName,
-              roomNumber: widget.roomNumber,
-              noOfQuestions: widget.noOfQuestions,
-            ),
-            isRoute: false,
-          );
-        }
-      });
-    }
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: StreamBuilder(
@@ -110,13 +94,13 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                       ),
                       const SizedBox(height: 30),
                       ...playersNames.map((player) {
-                        counter++;
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
                             onTap: () {
+                              counter++;
                               FirebaseData().updatePlayerAsk(
-                                answerer: player == "No One" ? player : "",
+                                answerer: player != "No One" ? player : "",
                                 id: counter.toString(),
                                 roomNumber: widget.roomNumber,
                                 willAsk: player != "No One" ? true : false,
@@ -128,7 +112,6 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                                   player,
                                 );
                               }
-                              startTimer();
                             },
                             child: Container(
                               width: 200,
