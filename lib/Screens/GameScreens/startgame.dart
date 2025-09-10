@@ -66,7 +66,6 @@ class _StartgameState extends State<Startgame> {
                       final isCurrentPlayer =
                           msg['Sender'] == widget.playerName;
                       no = messages.length;
-
                       for (final msg in messages) {
                         if (msg['Sender'] == "Bot" &&
                             _activeBotId != msg.id &&
@@ -74,8 +73,7 @@ class _StartgameState extends State<Startgame> {
                                 msg['Answered'] == false)) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             setState(() {
-                              _activeBotId = msg
-                                  .id; // <-- Save the "current round" Bot message
+                              _activeBotId = msg.id;
                             });
                           });
                           break; // found the active Bot doc, stop searching
@@ -154,9 +152,10 @@ class _StartgameState extends State<Startgame> {
                       }
 
                       return FutureBuilder(
-                        future: FirebaseData().getNumberOfBotQuestions(
-                          roomNumber: widget.roomNumber,
-                        ),
+                        future: FirebaseData()
+                            .getNoOfBotMessagesAndSomeLastBotMessageData(
+                              roomNumber: widget.roomNumber,
+                            ),
                         builder: (context, questionsSnapshot) {
                           if (questionsSnapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -170,10 +169,14 @@ class _StartgameState extends State<Startgame> {
                           } else if (!questionsSnapshot.hasData) {
                             return Center(child: Text("No questions yet."));
                           }
-                          final int noOfBotQuestions = questionsSnapshot.data!;
+                          final Map<String, dynamic> data =
+                              questionsSnapshot.data!;
+                          final int noOfBotQuestions = data['noOfBotQuestions'];
                           print("Bot:$noOfBotQuestions");
                           print("Quest:${widget.noOfQuestions}");
-                          if (noOfBotQuestions == widget.noOfQuestions) {
+                          if (noOfBotQuestions == widget.noOfQuestions &&
+                              data['Asked'] == true &&
+                              data['Answered'] == true) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               goAnotherPage(
                                 context: context,
@@ -283,10 +286,6 @@ class _StartgameState extends State<Startgame> {
                                 widget.roomNumber,
                                 (no! + 1).toString(),
                               );
-                              // setState(() {
-                              //   _currentAnswerer = null;
-                              //   _currentAsker = null;
-                              // });
                             }
                             setState(() {});
                             message.clear();

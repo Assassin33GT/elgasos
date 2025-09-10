@@ -209,51 +209,59 @@ class FirebaseData {
     final List<Map<String, dynamic>>? allMessages = await getAllMessages(
       roomNumber: roomNumber,
     );
-
-    if (index == "1") {
-      print("index 1");
-      asker = questions![0]['Asker'];
-      answerer = questions[0]['Answerer'];
-    } else {
-      for (final doc in allMessages!) {
-        print("messageTable");
-        if (doc['Sender'] == "Bot") {
-          asker = doc['Asker'];
-          answerer = doc['Answerer'];
-          print("flag");
-          break;
-        }
-      }
-
-      for (int i = 0; i < questions!.length; i++) {
-        if (i + 1 >= questions.length) {
-          print("end");
-        } else if (questions[i]['Asker'] == asker &&
-            questions[i]['Answerer'] == answerer) {
-          asker = questions[i + 1]['Asker'];
-          answerer = questions[i + 1]['Answerer'];
-          print("Asker: $asker");
-          print("Answerer: $answerer");
-          break;
-        }
-      }
+    int? getAllBotQuestions = 1;
+    if (index != "1") {
+      getAllBotQuestions = await getNumberOfBotQuestions(
+        roomNumber: roomNumber,
+      );
     }
 
-    await _firestore
-        .collection("Rooms")
-        .doc(roomNumber)
-        .collection("Chat")
-        .doc(index)
-        .set({
-          "Msg": "$asker ask $answerer",
-          "Asker": asker,
-          "Answerer": answerer,
-          "Sender": "Bot",
-          "Asked": false,
-          "Answered": false,
-          "MessageNumber": int.parse(index),
-          "Timestamp": FieldValue.serverTimestamp(),
-        });
+    if (getAllBotQuestions! < questions!.length) {
+      if (index == "1") {
+        asker = questions[0]['Asker'];
+        answerer = questions[0]['Answerer'];
+      } else {
+        for (final doc in allMessages!) {
+          if (doc['Sender'] == "Bot") {
+            asker = doc['Asker'];
+            answerer = doc['Answerer'];
+            break;
+          }
+        }
+
+        for (int i = 0; i < questions.length; i++) {
+          if (i + 1 >= questions.length) {
+            print("end");
+          } else if (questions[i]['Asker'] == asker &&
+              questions[i]['Answerer'] == answerer) {
+            asker = questions[i + 1]['Asker'];
+            answerer = questions[i + 1]['Answerer'];
+            print("Asker: $asker");
+            print("Answerer: $answerer");
+            break;
+          }
+        }
+      }
+
+      await _firestore
+          .collection("Rooms")
+          .doc(roomNumber)
+          .collection("Chat")
+          .doc(index)
+          .set({
+            "Msg": "$asker ask $answerer",
+            "Asker": asker,
+            "Answerer": answerer,
+            "Sender": "Bot",
+            "Asked": false,
+            "Answered": false,
+            "MessageNumber": int.parse(index),
+            "Timestamp": FieldValue.serverTimestamp(),
+          });
+    } else {
+      print("Bot Questions:$getAllBotQuestions");
+      print("Questions:${questions.length}");
+    }
   }
 
   // Get all messages
@@ -324,8 +332,8 @@ class FirebaseData {
     final List<Map<String, dynamic>>? allMessages = await getAllMessages(
       roomNumber: roomNumber,
     );
-
     int noOfBotQuestions = 0;
+
     allMessages!.forEach((doc) {
       if (doc['Sender'] == "Bot") {
         noOfBotQuestions++;
@@ -333,6 +341,37 @@ class FirebaseData {
     });
 
     return noOfBotQuestions;
+  }
+
+  Future<Map<String, dynamic>?> getNoOfBotMessagesAndSomeLastBotMessageData({
+    required String roomNumber,
+  }) async {
+    final List<Map<String, dynamic>>? allMessages = await getAllMessages(
+      roomNumber: roomNumber,
+    );
+    final Map<String, dynamic>? lastBotQuestion = await getLastBotMessage(
+      roomNumber,
+    );
+
+    Map<String, dynamic> values = {};
+    int noOfBotQuestions = 0;
+
+    allMessages!.forEach((doc) {
+      if (doc['Sender'] == "Bot") {
+        noOfBotQuestions++;
+      }
+    });
+    if (lastBotQuestion == null) {
+      values = {"noOfBotQuestions": 1, "Asked": false, "Answered": false};
+    } else {
+      values = {
+        "noOfBotQuestions": noOfBotQuestions,
+        "Asked": lastBotQuestion['Asked'],
+        "Answered": lastBotQuestion['Answered'],
+      };
+    }
+
+    return values;
   }
 
   // When player choose player to ask
