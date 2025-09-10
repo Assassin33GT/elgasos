@@ -194,7 +194,12 @@ class FirebaseData {
           .doc(roomNumber)
           .collection("Players Ask")
           .doc((i + 1).toString())
-          .set({"Asker": playersNames[i], "Answerer": "", "Will Ask": null});
+          .set({
+            "Asker": playersNames[i],
+            "Answerer": "",
+            "Will Ask": null,
+            "Id": (i + 1).toString(),
+          });
     }
   }
 
@@ -354,11 +359,6 @@ class FirebaseData {
         return allMessages[i];
       }
     }
-    // allMessages!.map((doc) {
-    //   if (doc['Sender'] == "Bot") {
-    //     return doc;
-    //   }
-    // });
 
     return null;
   }
@@ -390,7 +390,6 @@ class FirebaseData {
         "Answered": lastBotQuestion['Answered'],
       };
     }
-    print(values);
     return values;
   }
 

@@ -24,6 +24,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
 
   @override
   Widget build(BuildContext context) {
+    String id = "";
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: StreamBuilder(
@@ -38,8 +39,8 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
           }
 
           final List<Map<String, dynamic>> playersAsk = snapshot.data!;
-
           List<String> playersNames = [];
+
           playersAsk.forEach((playerAsk) {
             if (playerAsk['Asker'] == asker && playerAsk['Will Ask'] != null) {
               if (playerAsk['Will Ask'] == true) {
@@ -70,13 +71,13 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
             }
             if (playerAsk['Will Ask'] == null && asker == "") {
               asker = playerAsk['Asker'];
+              id = playerAsk['Id'];
             }
             if (playerAsk['Asker'] != widget.playerName) {
               playersNames.add(playerAsk['Asker']);
             }
           });
           playersNames.add("No One");
-          int counter = 0;
 
           return asker == widget.playerName
               ? Center(
@@ -94,14 +95,16 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                       ),
                       const SizedBox(height: 30),
                       ...playersNames.map((player) {
+                        print("map: $id");
+
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
                             onTap: () {
-                              counter++;
+                              print("Enter: $id");
                               FirebaseData().updatePlayerAsk(
                                 answerer: player != "No One" ? player : "",
-                                id: counter.toString(),
+                                id: id,
                                 roomNumber: widget.roomNumber,
                                 willAsk: player != "No One" ? true : false,
                               );
