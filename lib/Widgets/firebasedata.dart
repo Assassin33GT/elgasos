@@ -366,7 +366,7 @@ class FirebaseData {
     _firestore
         .collection("Rooms")
         .doc(roomNumber)
-        .collection("Players Ask")
+        .collection("Choose Player")
         .doc(id)
         .update({"Choosen Player": choosenPlayer});
   }
@@ -465,6 +465,7 @@ class FirebaseData {
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Players Ask")
+        .orderBy("Id")
         .snapshots()
         .map((snapshot) {
           if (snapshot.docs.isEmpty) return null;

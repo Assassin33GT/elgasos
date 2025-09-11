@@ -19,6 +19,15 @@ class ChooseImposter extends StatefulWidget {
 
 class _ChooseImposterState extends State<ChooseImposter> {
   String choosenPlayer = "";
+  Color getColor(String playerName) {
+    if (choosenPlayer == "") {
+      return Colors.orangeAccent;
+    } else if (choosenPlayer == playerName) {
+      return Colors.lightGreen;
+    } else {
+      return Colors.blueGrey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +44,6 @@ class _ChooseImposterState extends State<ChooseImposter> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text("No messages yet."));
           }
-
           final List<Map<String, dynamic>> choosePlayer = snapshot.data!;
           List<String> playersNames = [];
           int counter = 0;
@@ -49,6 +57,7 @@ class _ChooseImposterState extends State<ChooseImposter> {
             if (player['Choosen Player'] != "") {
               counter++;
             }
+
             if (choosePlayer.length == counter) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 goAnotherPage(
@@ -89,15 +98,13 @@ class _ChooseImposterState extends State<ChooseImposter> {
                             choosenPlayer: player,
                           );
                           choosenPlayer = player;
+                          setState(() {});
                         }
-                        setState(() {});
                       },
                       child: Container(
                         width: 200,
                         decoration: BoxDecoration(
-                          color: choosenPlayer == ""
-                              ? Colors.orangeAccent
-                              : Colors.blueGrey,
+                          color: getColor(player),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Colors.deepOrange,

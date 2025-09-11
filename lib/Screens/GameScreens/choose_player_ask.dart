@@ -20,11 +20,12 @@ class ChoosePlayer extends StatefulWidget {
 }
 
 class _ChoosePlayerState extends State<ChoosePlayer> {
-  String asker = "";
+  String id = "";
 
   @override
   Widget build(BuildContext context) {
-    String id = "";
+    String asker = "";
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: StreamBuilder(
@@ -41,9 +42,17 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
           final List<Map<String, dynamic>> playersAsk = snapshot.data!;
           List<String> playersNames = [];
 
-          playersAsk.forEach((playerAsk) {
-            if (playerAsk['Asker'] == asker && playerAsk['Will Ask'] != null) {
-              if (playerAsk['Will Ask'] == true) {
+          for (int i = 0; i < playersAsk.length; i++) {
+            if (playersAsk[i]['Will Ask'] == null && asker == "") {
+              asker = playersAsk[i]['Asker'];
+              id = playersAsk[i]['Id'];
+            }
+            if (playersAsk[i]['Asker'] != widget.playerName) {
+              playersNames.add(playersAsk[i]['Asker']);
+            }
+            if (playersAsk[i]['Asker'] == asker &&
+                playersAsk[i]['Will Ask'] != null) {
+              if (playersAsk[i]['Will Ask'] == true) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   goAnotherPage(
                     context: context,
@@ -69,14 +78,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                 });
               }
             }
-            if (playerAsk['Will Ask'] == null && asker == "") {
-              asker = playerAsk['Asker'];
-              id = playerAsk['Id'];
-            }
-            if (playerAsk['Asker'] != widget.playerName) {
-              playersNames.add(playerAsk['Asker']);
-            }
-          });
+          }
           playersNames.add("No One");
 
           return asker == widget.playerName

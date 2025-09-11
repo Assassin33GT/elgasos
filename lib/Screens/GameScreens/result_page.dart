@@ -1,5 +1,6 @@
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ResultPage extends StatefulWidget {
   final String roomNumber;
@@ -20,6 +21,7 @@ class _ResultPageState extends State<ResultPage> {
   @override
   void initState() {
     super.initState();
+    getData();
   }
 
   void getData() async {
@@ -33,14 +35,29 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("The imposter is"),
+            Text(
+              "The Imposter is",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                color: Colors.white70,
+              ),
+            ),
             ...allImposters!.map((imposter) {
-              return Text(imposter);
+              return Text(
+                imposter,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black87,
+                ),
+              );
             }),
           ],
         ),
