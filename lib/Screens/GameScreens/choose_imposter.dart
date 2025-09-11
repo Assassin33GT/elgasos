@@ -90,11 +90,12 @@ class _ChooseImposterState extends State<ChooseImposter> {
                           );
                           choosenPlayer = player;
                         }
+                        setState(() {});
                       },
                       child: Container(
                         width: 200,
                         decoration: BoxDecoration(
-                          color: choosenPlayer != ""
+                          color: choosenPlayer == ""
                               ? Colors.orangeAccent
                               : Colors.blueGrey,
                           borderRadius: BorderRadius.circular(12),
