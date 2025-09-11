@@ -66,7 +66,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   // Call the Functions that give players the key or imposter
   void startGiveIdentity() async {
     final getRoomData = await FirebaseData().getRoomData(widget.roomNumber);
-    FirebaseData().playersAsk(roomNumber: widget.roomNumber);
+    FirebaseData().playersAskAndChoosePlayer(roomNumber: widget.roomNumber);
     FirebaseData().giveIdentity(
       roomNumber: widget.roomNumber,
       noOfPlayers: getRoomData!['NoOfPlayers'],

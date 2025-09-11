@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:elgasos/Screens/GameScreens/choose_player.dart';
+import 'package:elgasos/Screens/GameScreens/choose_imposter.dart';
+import 'package:elgasos/Screens/GameScreens/choose_player_ask.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +29,19 @@ class _StartgameState extends State<Startgame> {
   String? _currentAnswerer;
   bool canSend = false;
   String? _activeBotId;
+  bool? isLastPlayerAskQuestion;
 
   @override
   void initState() {
     super.initState();
+    getCheckLastPlayerAskQuestion();
+  }
+
+  void getCheckLastPlayerAskQuestion() async {
+    isLastPlayerAskQuestion = await FirebaseData().checkLastPlayerAskQuestion(
+      widget.roomNumber,
+    );
+    print(isLastPlayerAskQuestion);
   }
 
   @override
@@ -172,20 +182,30 @@ class _StartgameState extends State<Startgame> {
                           final Map<String, dynamic> data =
                               questionsSnapshot.data!;
                           final int noOfBotQuestions = data['noOfBotQuestions'];
-                          print(data);
                           if (noOfBotQuestions == widget.noOfQuestions &&
                               data['Asked'] == true &&
                               data['Answered'] == true) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              goAnotherPage(
-                                context: context,
-                                page: ChoosePlayer(
-                                  roomNumber: widget.roomNumber,
-                                  playerName: widget.playerName,
-                                  noOfQuestions: widget.noOfQuestions,
-                                ),
-                                isRoute: false,
-                              );
+                              if (isLastPlayerAskQuestion == true) {
+                                goAnotherPage(
+                                  context: context,
+                                  page: ChooseImposter(
+                                    playerName: widget.playerName,
+                                    roomNumber: widget.roomNumber,
+                                  ),
+                                  isRoute: false,
+                                );
+                              } else {
+                                goAnotherPage(
+                                  context: context,
+                                  page: ChoosePlayer(
+                                    roomNumber: widget.roomNumber,
+                                    playerName: widget.playerName,
+                                    noOfQuestions: widget.noOfQuestions,
+                                  ),
+                                  isRoute: false,
+                                );
+                              }
                             });
                           }
                           return Padding(

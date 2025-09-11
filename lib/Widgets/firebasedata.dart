@@ -30,6 +30,20 @@ class FirebaseData {
     });
   }
 
+  Future<List<String>?> getImposters({required String roomNumber}) async {
+    Map<String, dynamic>? roomData = await getRoomData(roomNumber);
+    List<String>? playersName = await getPlayersNames(roomNumber);
+
+    if (roomData!.isEmpty) return null;
+    List<String> imposters = [];
+    for (int i = 0; i < roomData['NoOfImposters']; i++) {
+      if (roomData[playersName![i]] == true) {
+        imposters.add(roomData[playersName[i]]);
+      }
+    }
+    return imposters;
+  }
+
   // Return all players names
   Future<List<String>>? getPlayersNames(String roomNumber) async {
     Map<String, dynamic>? roomData = await getRoomData(roomNumber);
@@ -184,8 +198,8 @@ class FirebaseData {
     await _firestore.collection("Rooms").doc(roomNumber).update(identityData);
   }
 
-  // Create a document for players who will ask
-  void playersAsk({required String roomNumber}) async {
+  // Create a document for players who will ask and who will be chosen
+  void playersAskAndChoosePlayer({required String roomNumber}) async {
     final List<String>? playersNames = await getPlayersNames(roomNumber);
 
     for (int i = 0; i < playersNames!.length; i++) {
@@ -198,6 +212,17 @@ class FirebaseData {
             "Asker": playersNames[i],
             "Answerer": "",
             "Will Ask": null,
+            "Id": (i + 1).toString(),
+          });
+
+      _firestore
+          .collection("Rooms")
+          .doc(roomNumber)
+          .collection("Choose Player")
+          .doc((i + 1).toString())
+          .set({
+            "Player": playersNames[i],
+            "Choosen Player": "",
             "Id": (i + 1).toString(),
           });
     }
@@ -332,6 +357,20 @@ class FirebaseData {
         .update({"Answerer": answerer, "Will Ask": willAsk});
   }
 
+  // To update Choose Players collection
+  void updateChoosePlayer({
+    required String roomNumber,
+    required String id,
+    required String choosenPlayer,
+  }) async {
+    _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Players Ask")
+        .doc(id)
+        .update({"Choosen Player": choosenPlayer});
+  }
+
   // To get no of bot questions in the chat collection
   Future<int?> getNumberOfBotQuestions({required String roomNumber}) async {
     final List<Map<String, dynamic>>? allMessages = await getAllMessages(
@@ -436,6 +475,61 @@ class FirebaseData {
 
           return playersAsk;
         });
+  }
+
+  // To get the Players Ask Document Stream
+  Stream<List<Map<String, dynamic>>?> getChoosePlayerStream(String roomNumber) {
+    return _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Choose Player")
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.docs.isEmpty) return null;
+          List<Map<String, dynamic>> choosePlayer = [];
+          snapshot.docs.forEach((doc) {
+            choosePlayer.add(doc.data());
+          });
+
+          return choosePlayer;
+        });
+  }
+
+  Future<List<Map<String, dynamic>>?> getChoosePlayer({
+    required String roomNumber,
+  }) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Choose Player")
+        .get();
+
+    if (snapshot.docs.isEmpty) return null;
+
+    List<Map<String, dynamic>> choosePlayerData = [];
+
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      choosePlayerData.add(snapshot.docs[i].data() as Map<String, dynamic>);
+    }
+    return choosePlayerData;
+  }
+
+  // Check if the last player asked
+  Future<bool?> checkLastPlayerAskQuestion(String roomNumber) async {
+    final querySnapshot = await _firestore
+        .collection("Rooms")
+        .doc(roomNumber)
+        .collection("Players Ask")
+        .orderBy("Id", descending: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) return null;
+    if (querySnapshot.docs[0].data()['Will Ask'] == true) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // Get id of last bot message
