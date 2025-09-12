@@ -4,6 +4,8 @@ import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+int id = 1;
+
 class ChoosePlayer extends StatefulWidget {
   final String playerName;
   final String roomNumber;
@@ -20,7 +22,17 @@ class ChoosePlayer extends StatefulWidget {
 }
 
 class _ChoosePlayerState extends State<ChoosePlayer> {
-  String id = "";
+  List<String>? playersNames = [];
+
+  void getAllNames() async {
+    playersNames = await FirebaseData().getPlayersNames(widget.roomNumber);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAllNames();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +41,10 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: StreamBuilder(
-        stream: FirebaseData().getPlayersAskStream(widget.roomNumber),
+        stream: FirebaseData().getFirstPlayersAskStream(
+          id: id.toString(),
+          roomNumber: widget.roomNumber,
+        ),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -38,50 +53,49 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text("No messages yet."));
           }
+          final Map<String, dynamic> playersAsk = snapshot.data!;
 
-          final List<Map<String, dynamic>> playersAsk = snapshot.data!;
-          List<String> playersNames = [];
-
-          for (int i = 0; i < playersAsk.length; i++) {
-            if (playersAsk[i]['Will Ask'] == null && asker == "") {
-              asker = playersAsk[i]['Asker'];
-              id = playersAsk[i]['Id'];
-            }
-            if (playersAsk[i]['Asker'] != widget.playerName) {
-              playersNames.add(playersAsk[i]['Asker']);
-            }
-            if (playersAsk[i]['Asker'] == asker &&
-                playersAsk[i]['Will Ask'] != null) {
-              if (playersAsk[i]['Will Ask'] == true) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  goAnotherPage(
-                    context: context,
-                    page: Startgame(
-                      playerName: widget.playerName,
-                      roomNumber: widget.roomNumber,
-                      noOfQuestions: widget.noOfQuestions + 1,
-                    ),
-                    isRoute: false,
-                  );
-                });
-              } else {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  goAnotherPage(
-                    context: context,
-                    page: ChoosePlayer(
-                      roomNumber: widget.roomNumber,
-                      playerName: widget.playerName,
-                      noOfQuestions: widget.noOfQuestions,
-                    ),
-                    isRoute: false,
-                  );
-                });
-              }
+          if (playersAsk['Will Ask'] != null) {
+            if (playersAsk['Will Ask'] == true) {
+              id++;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                goAnotherPage(
+                  context: context,
+                  page: Startgame(
+                    playerName: widget.playerName,
+                    roomNumber: widget.roomNumber,
+                    noOfQuestions: widget.noOfQuestions + 1,
+                  ),
+                  isRoute: false,
+                );
+              });
+            } else {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                id++;
+                goAnotherPage(
+                  context: context,
+                  page: ChoosePlayer(
+                    roomNumber: widget.roomNumber,
+                    playerName: widget.playerName,
+                    noOfQuestions: widget.noOfQuestions,
+                  ),
+                  isRoute: false,
+                );
+              });
             }
           }
-          playersNames.add("No One");
 
-          return asker == widget.playerName
+          if (playersAsk['Will Ask'] == null && asker == "") {
+            asker = playersAsk['Asker'];
+          }
+
+          for (int i = 0; i < playersNames!.length; i++) {
+            if (playersNames![i] == asker) {
+              playersNames!.remove(asker);
+            }
+          }
+          if (!playersNames!.contains("No One")) playersNames!.add("No One");
+          return playersAsk['Asker'] == widget.playerName
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +110,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      ...playersNames.map((player) {
+                      ...playersNames!.map((player) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
@@ -104,7 +118,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                               print("Enter: $id");
                               FirebaseData().updatePlayerAsk(
                                 answerer: player != "No One" ? player : "",
-                                id: id,
+                                id: id.toString(),
                                 roomNumber: widget.roomNumber,
                                 willAsk: player != "No One" ? true : false,
                               );
@@ -115,6 +129,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                                   player,
                                 );
                               }
+                              id++;
                             },
                             child: Container(
                               width: 200,
@@ -147,7 +162,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                 )
               : Center(
                   child: Text(
-                    "Waiting $asker to choose...",
+                    "Waiting ${playersAsk['Asker']} to choose...",
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 22,

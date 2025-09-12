@@ -36,9 +36,9 @@ class FirebaseData {
 
     if (roomData!.isEmpty) return null;
     List<String> imposters = [];
-    for (int i = 0; i < roomData['NoOfImposters']; i++) {
+    for (int i = 0; i < roomData['NoOfPlayers']; i++) {
       if (roomData[playersName![i]] == true) {
-        imposters.add(roomData[playersName[i]]);
+        imposters.add(roomData['Player ${i + 1}']);
       }
     }
     return imposters;
@@ -460,21 +460,27 @@ class FirebaseData {
   }
 
   // To get the Players Ask Document Stream
-  Stream<List<Map<String, dynamic>>?> getPlayersAskStream(String roomNumber) {
+  Stream<Map<String, dynamic>?> getFirstPlayersAskStream({
+    required String roomNumber,
+    required String id,
+  }) {
     return _firestore
         .collection("Rooms")
         .doc(roomNumber)
         .collection("Players Ask")
-        .orderBy("Id")
+        .doc(id)
         .snapshots()
         .map((snapshot) {
-          if (snapshot.docs.isEmpty) return null;
-          List<Map<String, dynamic>> playersAsk = [];
-          snapshot.docs.forEach((doc) {
-            playersAsk.add(doc.data());
-          });
+          if (!snapshot.exists) return null;
+          // List<Map<String, dynamic>> playersAsk = [];
 
-          return playersAsk;
+          // for (int i = 0; i < snapshot.docs.length; i++) {
+          //   if (snapshot.docs[i].data()['Will Ask'] == null) {
+          //     playersAsk.add(snapshot.docs[i].data());
+          //     break;
+          //   }
+          // }
+          return snapshot.data();
         });
   }
 
