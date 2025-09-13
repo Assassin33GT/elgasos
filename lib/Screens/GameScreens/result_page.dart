@@ -1,4 +1,6 @@
+import 'package:elgasos/Screens/homepage.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
+import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,6 +20,8 @@ class ResultPage extends StatefulWidget {
 class _ResultPageState extends State<ResultPage> {
   Map<String, dynamic>? roomData = {};
   List<String>? allImposters = [];
+  List<Map<String, dynamic>>? choosePlayer = [];
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +34,12 @@ class _ResultPageState extends State<ResultPage> {
     allImposters = await FirebaseData().getImposters(
       roomNumber: widget.roomNumber,
     );
+
+    choosePlayer = await FirebaseData().getChoosePlayer(
+      roomNumber: widget.roomNumber,
+    );
+
+    setState(() {});
   }
 
   @override
@@ -59,6 +69,39 @@ class _ResultPageState extends State<ResultPage> {
                 ),
               );
             }),
+            const SizedBox(height: 10),
+            Text(
+              "The Imposter is",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                color: Colors.white70,
+              ),
+            ),
+            ...choosePlayer!.map((player) {
+              return allImposters!.contains(player['Choosen Player'])
+                  ? Text(
+                      player['Player'],
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: Colors.black87,
+                      ),
+                    )
+                  : Container();
+            }),
+
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                goAnotherPage(
+                  context: context,
+                  page: Homepage(name: widget.playerName),
+                  isRoute: false,
+                );
+              },
+              child: Text("Home Page"),
+            ),
           ],
         ),
       ),

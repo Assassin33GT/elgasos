@@ -4,8 +4,6 @@ import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-int id = 1;
-
 class ChoosePlayer extends StatefulWidget {
   final String playerName;
   final String roomNumber;
@@ -23,15 +21,18 @@ class ChoosePlayer extends StatefulWidget {
 
 class _ChoosePlayerState extends State<ChoosePlayer> {
   List<String>? playersNames = [];
+  int roomId = 0;
 
-  void getAllNames() async {
+  void getAllData() async {
+    roomId = await FirebaseData().getRoomId(roomNumber: widget.roomNumber);
     playersNames = await FirebaseData().getPlayersNames(widget.roomNumber);
+    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-    getAllNames();
+    getAllData();
   }
 
   @override
@@ -42,7 +43,7 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
       backgroundColor: const Color.fromARGB(255, 8, 41, 91),
       body: StreamBuilder(
         stream: FirebaseData().getFirstPlayersAskStream(
-          id: id.toString(),
+          id: roomId.toString(),
           roomNumber: widget.roomNumber,
         ),
         builder: (context, snapshot) {
@@ -57,7 +58,10 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
 
           if (playersAsk['Will Ask'] != null) {
             if (playersAsk['Will Ask'] == true) {
-              id++;
+              FirebaseData().updateRoomId(
+                roomNumber: widget.roomNumber,
+                id: ++roomId,
+              );
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 goAnotherPage(
                   context: context,
@@ -71,7 +75,10 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
               });
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                id++;
+                FirebaseData().updateRoomId(
+                  roomNumber: widget.roomNumber,
+                  id: ++roomId,
+                );
                 goAnotherPage(
                   context: context,
                   page: ChoosePlayer(
@@ -115,10 +122,9 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                           padding: const EdgeInsets.all(8.0),
                           child: InkWell(
                             onTap: () {
-                              print("Enter: $id");
                               FirebaseData().updatePlayerAsk(
                                 answerer: player != "No One" ? player : "",
-                                id: id.toString(),
+                                id: roomId.toString(),
                                 roomNumber: widget.roomNumber,
                                 willAsk: player != "No One" ? true : false,
                               );
@@ -129,7 +135,6 @@ class _ChoosePlayerState extends State<ChoosePlayer> {
                                   player,
                                 );
                               }
-                              id++;
                             },
                             child: Container(
                               width: 200,

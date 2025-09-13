@@ -80,6 +80,7 @@ class FirebaseData {
         roomData["NoOfPlayers"] = noOfPlayers;
         roomData["NoOfImposters"] = noOfImposters;
         roomData["Started"] = false;
+        roomData["Id"] = 1;
       } else {
         roomData["Player $i"] = null;
       }
@@ -106,6 +107,18 @@ class FirebaseData {
     await _firestore.collection("Rooms").doc(roomNumber).set(roomData);
   }
 
+  // To get room ID
+  Future<int> getRoomId({required String roomNumber}) async {
+    Map<String, dynamic>? roomData = await getRoomData(roomNumber);
+    return roomData!["Id"];
+  }
+
+  // To update room ID
+  void updateRoomId({required String roomNumber, required int id}) async {
+    await _firestore.collection("Rooms").doc(roomNumber).update({"Id": id});
+  }
+
+  // To make host start the game
   void gameStarted(String roomNumber) async {
     await _firestore.collection("Rooms").doc(roomNumber).update({
       "Started": true,
