@@ -1,4 +1,5 @@
 import 'package:elgasos/Screens/GameScreens/playeridentityscreen.dart';
+import 'package:elgasos/Screens/homepage.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:elgasos/Widgets/goAnotherPage.dart';
 import 'package:elgasos/Widgets/showsnackbar.dart';
@@ -156,6 +157,27 @@ class _WaitingRoomPageState extends State<WaitingRoomPage>
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
+          Align(
+            alignment: AlignmentGeometry.topLeft,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                FirebaseData().deleteGame(roomNumber: widget.roomNumber);
+                goAnotherPage(
+                  context: context,
+                  page: Homepage(name: widget.name),
+                  isRoute: false,
+                );
+              },
+              child: Text(
+                "Leave",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
           // Animated Logo/Icon
           AnimatedBuilder(
             animation: _pulseAnimation,

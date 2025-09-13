@@ -130,6 +130,11 @@ class FirebaseData {
     });
   }
 
+  // Delete game if host left the game or game end
+  void deleteGame({required String roomNumber}) async {
+    await _firestore.collection("Rooms").doc(roomNumber).delete();
+  }
+
   // To update room data when new players come in
   void updateRoomData(String roomNumber, String name) async {
     DocumentSnapshot snapshot = await _firestore

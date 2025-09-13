@@ -126,6 +126,18 @@ class _JoinroomState extends State<Joinroom> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
+          Align(
+            alignment: AlignmentGeometry.topLeft,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Icon(Icons.arrow_back, color: Colors.blue.shade500),
+            ),
+          ),
           // Animated Logo/Icon
           AnimatedBuilder(
             animation: _pulseAnimation,
