@@ -50,7 +50,9 @@ class FirebaseData {
     List<String> playersNames = [];
 
     for (int i = 1; i <= roomData!["NoOfPlayers"]; i++) {
-      playersNames.add(roomData['Player $i']);
+      if (roomData['Player $i'] != null) {
+        playersNames.add(roomData['Player $i']);
+      }
     }
 
     return playersNames;
@@ -133,6 +135,18 @@ class FirebaseData {
   // Delete game if host left the game or game end
   void deleteGame({required String roomNumber}) async {
     await _firestore.collection("Rooms").doc(roomNumber).delete();
+  }
+
+  // Update guest if he left the game
+  void guestLeave({
+    required String roomNumber,
+    required String playerName,
+  }) async {
+    final List<String>? playersName = await getPlayersNames(roomNumber);
+    int index = playersName!.indexOf(playerName);
+    await _firestore.collection("Rooms").doc(roomNumber).update({
+      "Player ${index + 1}": null,
+    });
   }
 
   // To update room data when new players come in

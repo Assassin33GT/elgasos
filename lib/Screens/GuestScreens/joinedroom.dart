@@ -1,6 +1,8 @@
 import 'package:elgasos/Screens/GameScreens/playeridentityscreen.dart';
+import 'package:elgasos/Screens/homepage.dart';
 import 'package:elgasos/Widgets/firebasedata.dart';
 import 'package:elgasos/Widgets/goAnotherPage.dart';
+import 'package:elgasos/Widgets/showsnackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -90,6 +92,17 @@ class _JoinedroomState extends State<Joinedroom> with TickerProviderStateMixin {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return _buildLoadingState();
+                      }
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          goAnotherPage(
+                            context: context,
+                            page: Homepage(name: widget.name),
+                            isRoute: false,
+                          );
+                          showSnackBar(context, "Admin has left!");
+                        });
+                        return const SizedBox.shrink();
                       } else if (snapshot.hasError) {
                         return _buildErrorState();
                       }
@@ -118,6 +131,30 @@ class _JoinedroomState extends State<Joinedroom> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
+          Align(
+            alignment: AlignmentGeometry.topLeft,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                FirebaseData().guestLeave(
+                  roomNumber: widget.roomNumber,
+                  playerName: widget.name,
+                );
+                goAnotherPage(
+                  context: context,
+                  page: Homepage(name: widget.name),
+                  isRoute: false,
+                );
+              },
+              child: Text(
+                "Leave",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
           // Animated Logo/Icon
           AnimatedBuilder(
             animation: _pulseAnimation,
