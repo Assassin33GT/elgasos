@@ -157,8 +157,9 @@ class _ChoosePlayerState extends State<ChoosePlayer>
                   playersNames!.remove(asker);
                 }
               }
-              if (!playersNames!.contains("No One"))
+              if (!playersNames!.contains("No One")) {
                 playersNames!.add("No One");
+              }
 
               return playersAsk['Asker'] == widget.playerName
                   ? _buildPlayerSelectionView(playersAsk)
@@ -464,11 +465,6 @@ class _ChoosePlayerState extends State<ChoosePlayer>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  isNoOne ? Icons.person_off : Icons.person,
-                  color: Colors.white,
-                  size: 20,
-                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

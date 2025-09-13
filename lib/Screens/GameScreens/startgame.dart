@@ -187,24 +187,32 @@ class _StartgameState extends State<Startgame> {
                               data['Answered'] == true) {
                             WidgetsBinding.instance.addPostFrameCallback((_) {
                               if (isLastPlayerAskQuestion == true) {
-                                goAnotherPage(
-                                  context: context,
-                                  page: ChooseImposter(
-                                    playerName: widget.playerName,
-                                    roomNumber: widget.roomNumber,
-                                  ),
-                                  isRoute: false,
-                                );
+                                Future.delayed(Duration(seconds: 1), () {
+                                  if (mounted) {
+                                    goAnotherPage(
+                                      context: context,
+                                      page: ChooseImposter(
+                                        playerName: widget.playerName,
+                                        roomNumber: widget.roomNumber,
+                                      ),
+                                      isRoute: false,
+                                    );
+                                  }
+                                });
                               } else {
-                                goAnotherPage(
-                                  context: context,
-                                  page: ChoosePlayer(
-                                    roomNumber: widget.roomNumber,
-                                    playerName: widget.playerName,
-                                    noOfQuestions: widget.noOfQuestions,
-                                  ),
-                                  isRoute: false,
-                                );
+                                Future.delayed(Duration(seconds: 1), () {
+                                  if (mounted) {
+                                    goAnotherPage(
+                                      context: context,
+                                      page: ChoosePlayer(
+                                        roomNumber: widget.roomNumber,
+                                        playerName: widget.playerName,
+                                        noOfQuestions: widget.noOfQuestions,
+                                      ),
+                                      isRoute: false,
+                                    );
+                                  }
+                                });
                               }
                             });
                           }
