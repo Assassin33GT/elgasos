@@ -80,6 +80,7 @@ class FirebaseData {
         roomData["NoOfPlayers"] = noOfPlayers;
         roomData["NoOfImposters"] = noOfImposters;
         roomData["Started"] = false;
+        roomData["Key"] = "";
         roomData["Id"] = 1;
       } else {
         roomData["Player $i"] = null;
@@ -119,8 +120,12 @@ class FirebaseData {
   }
 
   // To make host start the game
-  void gameStarted(String roomNumber) async {
+  Future<void> gameStarted({
+    required String roomNumber,
+    required String key,
+  }) async {
     await _firestore.collection("Rooms").doc(roomNumber).update({
+      "Key": key,
       "Started": true,
     });
   }

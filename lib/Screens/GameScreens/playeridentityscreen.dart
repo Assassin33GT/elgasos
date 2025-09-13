@@ -29,7 +29,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
   void initState() {
     super.initState();
     startFunctions();
-    FirebaseData().giveQuestions(widget.roomNumber);
+    // FirebaseData().giveQuestions(widget.roomNumber);
     startTimer();
   }
 
@@ -37,7 +37,7 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     final names = await FirebaseData().getPlayersNames(widget.roomNumber);
     if (widget.playerName == names![0]) {
       await FirebaseData().botSendMessage(widget.roomNumber, "1");
-      startGiveIdentity();
+      // startGiveIdentity();
     }
   }
 
@@ -47,7 +47,6 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
       roomNumber: widget.roomNumber,
     );
 
-    print("noOfQuestions$noOfQuestions");
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         goAnotherPage(
@@ -63,17 +62,6 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
     });
   }
 
-  // Call the Functions that give players the key or imposter
-  void startGiveIdentity() async {
-    final getRoomData = await FirebaseData().getRoomData(widget.roomNumber);
-    FirebaseData().playersAskAndChoosePlayer(roomNumber: widget.roomNumber);
-    FirebaseData().giveIdentity(
-      roomNumber: widget.roomNumber,
-      noOfPlayers: getRoomData!['NoOfPlayers'],
-      noOfImposters: getRoomData['NoOfImposters'],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,11 +73,11 @@ class _GamescreenState extends State<PlayerIdentityScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text("An error happend!"));
           }
-          final data = snapshot.data;
+          final Map<String, dynamic>? data = snapshot.data;
 
           return Center(
             child: Text(
-              data![widget.playerName] == false ? "كلمة السر: بطيخ" : "جاسوس",
+              data![widget.playerName] == false ? data['Key'] : "جاسوس",
               style: GoogleFonts.poppins(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,

@@ -28,6 +28,15 @@ class _WaitingRoomPageState extends State<WaitingRoomPage>
   late Animation<double> _pulseAnimation;
   late Animation<Offset> _slideAnimation;
 
+  List<String> keys = [
+    "بطيخ",
+    "مكرونة بشمل",
+    "فراخ بانيه",
+    "طعميه",
+    "كشري",
+    "كبسة",
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -60,13 +69,30 @@ class _WaitingRoomPageState extends State<WaitingRoomPage>
     super.dispose();
   }
 
+  // Call the Functions that give players the key or imposter
+  Future<void> startGiveIdentity() async {
+    final getRoomData = await FirebaseData().getRoomData(widget.roomNumber);
+    FirebaseData().playersAskAndChoosePlayer(roomNumber: widget.roomNumber);
+    FirebaseData().giveIdentity(
+      roomNumber: widget.roomNumber,
+      noOfPlayers: getRoomData!['NoOfPlayers'],
+      noOfImposters: getRoomData['NoOfImposters'],
+    );
+  }
+
   void goAnother(bool fullNot) async {
     if (fullNot) {
       setState(() {
         flag++;
       });
+      keys.shuffle();
       await FirebaseData().giveQuestions(widget.roomNumber);
-      FirebaseData().gameStarted(widget.roomNumber);
+      await FirebaseData().gameStarted(
+        roomNumber: widget.roomNumber,
+        key: keys[0],
+      );
+      await startGiveIdentity();
+
       goAnotherPage(
         context: context,
         page: PlayerIdentityScreen(
