@@ -385,6 +385,9 @@ class _ResultPageState extends State<ResultPage> with TickerProviderStateMixin {
       ),
       child: ElevatedButton(
         onPressed: () {
+          if (widget.playerName == roomData!['Player 1']) {
+            FirebaseData().deleteGame(roomNumber: widget.roomNumber);
+          }
           goAnotherPage(
             context: context,
             page: Homepage(name: widget.playerName),
